@@ -11,4 +11,5 @@
 9. Organize archived experiments as numbered experiment folders named like `XXX_expname`.
 10. Treat the repo as an evolving archive of experiment-specific codebases, with the current branch optimized for the active experiment.
 11. Expect the user to work across multiple machines. Record machine-specific environment facts, but do not assume one GPU or Python stack is permanent.
-12. When optimizing experiments, report concrete throughput or outcome numbers rather than relying on epochs alone.
+12. For experiment archives, put generated plots and plot-adjacent metrics in that experiment's `plot/` folder; experiments without plots should not have a `plot/` folder.
+13. When optimizing experiments, report concrete throughput or outcome numbers rather than relying on epochs alone.
