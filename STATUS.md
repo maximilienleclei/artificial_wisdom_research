@@ -9,6 +9,7 @@
 ## Working Agreement
 
 - The user wants high-level, complete project direction while Codex handles implementation details under the hood.
+- The user does not want to read repo files; chat is the only expected user interface.
 - Repo docs are the durable memory for preferences, decisions, experiment results, constraints, artifacts, and next steps.
 - Before future coding sessions, read this file and recent commits, then give a short orientation.
 
