@@ -3,8 +3,8 @@
 ## Current State
 
 - `main` is a fresh restart branch as of April 22, 2026.
-- Prior exploratory work is preserved on `to-be-deleted-archive-20260422`.
 - Prior exploratory work has been reintroduced as rerunnable archives under `experiments/`.
+- The old `to-be-deleted-archive-20260422` branch was deleted after the experiment archives were verified.
 - No new active experiment has been selected yet.
 - On the current NVIDIA RTX 5070 Ti Laptop GPU machine, `C:\Users\Max\venv` uses Python `3.14.3` with PyTorch `2.11.0+cu130`; CUDA is visible and reports one RTX 5070 Ti Laptop GPU.
 
