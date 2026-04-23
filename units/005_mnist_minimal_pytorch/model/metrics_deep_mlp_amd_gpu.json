@@ -1,0 +1,16 @@
+{
+  "epochs": 1,
+  "train_examples": 20000,
+  "test_examples": 5000,
+  "examples_seen": 20000,
+  "elapsed_s": 1.423,
+  "examples_per_s": 14056.4,
+  "final_train_loss": 0.335663,
+  "test_accuracy": 0.9002,
+  "device": "cuda",
+  "model": "deep-mlp",
+  "hidden_size": 2048,
+  "hidden_layers": 3,
+  "parameter_count": 10020874,
+  "model_path": "..\\model\\mnist_deep_mlp_amd_gpu.pt"
+}

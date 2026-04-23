@@ -1,0 +1,53 @@
+{
+  "epochs": 5,
+  "train_examples": 20000,
+  "test_examples": 5000,
+  "examples_seen": 100000,
+  "elapsed_s": 3.752,
+  "examples_per_s": 26655.7,
+  "final_train_loss": 0.041158,
+  "test_accuracy": 0.9538,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.269178,
+      "val_loss": 0.340887,
+      "val_accuracy": 0.9002,
+      "train_elapsed_s": 1.776
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.205471,
+      "val_loss": 0.2123,
+      "val_accuracy": 0.9348,
+      "train_elapsed_s": 0.476
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.106883,
+      "val_loss": 0.156476,
+      "val_accuracy": 0.951,
+      "train_elapsed_s": 0.476
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.059344,
+      "val_loss": 0.156692,
+      "val_accuracy": 0.9522,
+      "train_elapsed_s": 0.537
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.038543,
+      "val_loss": 0.177134,
+      "val_accuracy": 0.9538,
+      "train_elapsed_s": 0.488
+    }
+  ],
+  "device": "cuda",
+  "model": "deep-mlp",
+  "hidden_size": 2048,
+  "hidden_layers": 3,
+  "parameter_count": 10020874,
+  "model_path": "..\\model\\mnist_deep_mlp_learning_amd_gpu.pt"
+}
