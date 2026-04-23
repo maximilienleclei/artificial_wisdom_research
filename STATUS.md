@@ -27,6 +27,7 @@
 - Experiments should default to explicit wall-clock budgets; generations, epochs, iterations, and steps are secondary caps or reported outcomes. Enforce budgets with both internal deadlines and external hard process timeouts, and flush artifacts incrementally.
 - Every shell/tool execution should use an explicit finite timeout by default; anything beyond a brief read/listing needs a hard kill path.
 - Strict time caps must apply from process launch, not from after Python startup or model loading. For bounded runs, use an OS-level kill wrapper in the command itself in addition to any internal deadline.
+- Background runs must remain invisible to the user; do not use execution patterns that pop open visible terminal windows or consoles.
 - The user may move between machines, currently including AMD Radeon RX 7800 XT and NVIDIA RTX 5070 Ti Laptop GPU systems, with more machines possible later.
 - Environment setup should be documented per machine; do not assume one GPU or Python stack is permanent.
 - Before future coding sessions, read this file and recent commits, then give a short orientation.
