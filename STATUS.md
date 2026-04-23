@@ -6,6 +6,7 @@
 - Prior exploratory work has been reintroduced as rerunnable research units under `units/`.
 - `005_mnist_minimal_pytorch` is a minimal PyTorch port of the old `../ai_research/projects/dl_classify_mnist` project, keeping compressed MNIST data and a standalone script instead of the old Lightning/Hydra/W&B stack.
 - `006_cartpole_dynamic_network_reward_ga` is a minimal dynamic-topology network port targeting the same CartPole reward task as Unit 1; the verified single-seed run reached best reward `500.00`, final mean `446.02`, and peak mean `491.93`.
+- `007_cartpole_dynamic_gpu_ga` restores a GPU-batched dynamic-network path with Gymnasium vector envs on CPU and Torch population compute on the AMD ROCm GPU; a 6-second timed run saved metrics through generation 13 and reached peak mean reward `493.875`.
 - No next active experiment has been selected yet.
 - Known machine environment: NVIDIA RTX 5070 Ti Laptop GPU with `C:\Users\Max\venv`, Python `3.14.3`, PyTorch `2.11.0+cu130`; CUDA reports one RTX 5070 Ti Laptop GPU.
 - Known machine environment: AMD Radeon RX 7800 XT with `C:\Users\Max\venv`, PyTorch `2.9.1+rocm7.2.1`; PyTorch reports `cuda=True`, HIP `7.2.53211-158bd99533`, and device name `AMD  Radeon RX 7800 XT`.
