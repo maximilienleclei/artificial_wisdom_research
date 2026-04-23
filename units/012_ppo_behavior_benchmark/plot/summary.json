@@ -1,0 +1,2055 @@
+{
+  "episodes_completed": 13,
+  "episodes_requested": 64,
+  "elapsed_s": 8.03,
+  "device": "cuda",
+  "return_mean": 500.0,
+  "return_std": 0.0,
+  "length_mean": 500.0,
+  "length_std": 0.0,
+  "action_one_rate_mean": 0.5,
+  "action_one_rate_std": 0.0,
+  "action_switch_rate_mean": 0.6673346693386774,
+  "action_switch_rate_std": 0.044955522340227025,
+  "global_action_one_rate": 0.5,
+  "state_mean": [
+    -0.04887816827632756,
+    -0.0049771394406158765,
+    -0.00010749598376060022,
+    0.0006871170452437722
+  ],
+  "state_std": [
+    0.03568039349452803,
+    0.1381229061013904,
+    0.006706450878730823,
+    0.2010457582420348
+  ],
+  "state_cov": [
+    [
+      0.001273286370135147,
+      -0.00035015994106732515,
+      -0.00010396110624215746,
+      0.0002917904462088542
+    ],
+    [
+      -0.00035015994106732515,
+      0.019080872708771797,
+      0.0002736466351306574,
+      -0.027292278521154983
+    ],
+    [
+      -0.00010396110624215746,
+      0.0002736466351306574,
+      4.498340391250818e-05,
+      -0.0004260316121900303
+    ],
+    [
+      0.0002917904462088542,
+      -0.027292278521154983,
+      -0.0004260316121900303,
+      0.04042561623268908
+    ]
+  ],
+  "survival_curve": [
+    {
+      "step": 0,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 1,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 2,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 3,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 4,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 5,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 6,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 7,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 8,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 9,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 10,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 11,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 12,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 13,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 14,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 15,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 16,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 17,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 18,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 19,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 20,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 21,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 22,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 23,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 24,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 25,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 26,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 27,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 28,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 29,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 30,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 31,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 32,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 33,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 34,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 35,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 36,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 37,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 38,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 39,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 40,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 41,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 42,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 43,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 44,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 45,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 46,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 47,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 48,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 49,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 50,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 51,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 52,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 53,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 54,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 55,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 56,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 57,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 58,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 59,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 60,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 61,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 62,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 63,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 64,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 65,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 66,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 67,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 68,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 69,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 70,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 71,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 72,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 73,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 74,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 75,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 76,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 77,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 78,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 79,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 80,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 81,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 82,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 83,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 84,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 85,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 86,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 87,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 88,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 89,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 90,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 91,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 92,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 93,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 94,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 95,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 96,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 97,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 98,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 99,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 100,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 101,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 102,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 103,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 104,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 105,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 106,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 107,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 108,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 109,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 110,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 111,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 112,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 113,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 114,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 115,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 116,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 117,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 118,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 119,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 120,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 121,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 122,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 123,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 124,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 125,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 126,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 127,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 128,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 129,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 130,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 131,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 132,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 133,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 134,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 135,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 136,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 137,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 138,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 139,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 140,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 141,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 142,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 143,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 144,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 145,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 146,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 147,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 148,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 149,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 150,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 151,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 152,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 153,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 154,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 155,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 156,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 157,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 158,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 159,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 160,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 161,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 162,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 163,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 164,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 165,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 166,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 167,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 168,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 169,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 170,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 171,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 172,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 173,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 174,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 175,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 176,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 177,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 178,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 179,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 180,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 181,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 182,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 183,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 184,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 185,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 186,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 187,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 188,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 189,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 190,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 191,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 192,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 193,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 194,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 195,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 196,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 197,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 198,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 199,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 200,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 201,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 202,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 203,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 204,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 205,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 206,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 207,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 208,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 209,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 210,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 211,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 212,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 213,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 214,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 215,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 216,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 217,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 218,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 219,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 220,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 221,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 222,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 223,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 224,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 225,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 226,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 227,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 228,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 229,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 230,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 231,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 232,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 233,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 234,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 235,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 236,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 237,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 238,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 239,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 240,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 241,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 242,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 243,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 244,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 245,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 246,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 247,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 248,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 249,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 250,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 251,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 252,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 253,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 254,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 255,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 256,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 257,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 258,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 259,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 260,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 261,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 262,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 263,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 264,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 265,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 266,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 267,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 268,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 269,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 270,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 271,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 272,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 273,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 274,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 275,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 276,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 277,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 278,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 279,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 280,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 281,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 282,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 283,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 284,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 285,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 286,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 287,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 288,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 289,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 290,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 291,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 292,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 293,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 294,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 295,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 296,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 297,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 298,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 299,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 300,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 301,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 302,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 303,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 304,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 305,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 306,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 307,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 308,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 309,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 310,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 311,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 312,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 313,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 314,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 315,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 316,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 317,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 318,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 319,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 320,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 321,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 322,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 323,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 324,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 325,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 326,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 327,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 328,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 329,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 330,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 331,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 332,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 333,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 334,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 335,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 336,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 337,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 338,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 339,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 340,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 341,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 342,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 343,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 344,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 345,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 346,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 347,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 348,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 349,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 350,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 351,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 352,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 353,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 354,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 355,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 356,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 357,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 358,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 359,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 360,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 361,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 362,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 363,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 364,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 365,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 366,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 367,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 368,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 369,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 370,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 371,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 372,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 373,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 374,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 375,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 376,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 377,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 378,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 379,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 380,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 381,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 382,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 383,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 384,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 385,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 386,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 387,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 388,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 389,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 390,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 391,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 392,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 393,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 394,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 395,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 396,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 397,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 398,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 399,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 400,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 401,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 402,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 403,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 404,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 405,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 406,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 407,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 408,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 409,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 410,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 411,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 412,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 413,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 414,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 415,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 416,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 417,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 418,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 419,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 420,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 421,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 422,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 423,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 424,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 425,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 426,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 427,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 428,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 429,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 430,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 431,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 432,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 433,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 434,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 435,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 436,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 437,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 438,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 439,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 440,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 441,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 442,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 443,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 444,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 445,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 446,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 447,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 448,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 449,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 450,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 451,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 452,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 453,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 454,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 455,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 456,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 457,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 458,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 459,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 460,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 461,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 462,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 463,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 464,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 465,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 466,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 467,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 468,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 469,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 470,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 471,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 472,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 473,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 474,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 475,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 476,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 477,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 478,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 479,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 480,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 481,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 482,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 483,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 484,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 485,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 486,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 487,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 488,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 489,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 490,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 491,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 492,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 493,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 494,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 495,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 496,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 497,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 498,
+      "alive_fraction": 1.0
+    },
+    {
+      "step": 499,
+      "alive_fraction": 1.0
+    }
+  ]
+}
