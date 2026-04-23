@@ -1,0 +1,12 @@
+{
+  "epochs": 1,
+  "train_examples": 2048,
+  "test_examples": 1024,
+  "examples_seen": 2048,
+  "elapsed_s": 0.048,
+  "examples_per_s": 42273.7,
+  "final_train_loss": 1.13252,
+  "test_accuracy": 0.69043,
+  "device": "cpu",
+  "model_path": "..\\model\\mnist_linear.pt"
+}
