@@ -13,6 +13,7 @@
 - `011_gpu_cartpole_adversarial_generation` is a minimal GPU-native CartPole adversarial-generation port using the Unit 3 PPO checkpoint as target; the verified static smoke run reached best mean total fitness `0.8964` and mean generator environment reward `63.56`.
 - `012_ppo_behavior_benchmark` freezes the PPO reference behavior for future imitation comparisons; the saved bounded snapshot completed `13` fixed-seed episodes in about `8s`, all with return `500.0`, and recorded rollout/action statistics for later metric deltas.
 - `013_supervised_ppo_behavior_clone` is the first plain behavior-cloning baseline; an initial smoke run reached best validation action accuracy `0.9769` but only `469.0` mean closed-loop return over `3` completed benchmark seeds, already showing a gap between action fit and rollout behavior.
+- `014_ga_ppo_action_clone` is the GA counterpart to Unit 13; an initial smoke run reached best validation action accuracy `0.9846` and `500.0` mean closed-loop return over `7` completed benchmark seeds while still differing from PPO on action-switch rate.
 - Known machine environment: NVIDIA RTX 5070 Ti Laptop GPU with `C:\Users\Max\venv`, Python `3.14.3`, PyTorch `2.11.0+cu130`; CUDA reports one RTX 5070 Ti Laptop GPU.
 - Known machine environment: AMD Radeon RX 7800 XT with `C:\Users\Max\venv`, PyTorch `2.9.1+rocm7.2.1`; PyTorch reports `cuda=True`, HIP `7.2.53211-158bd99533`, and device name `AMD  Radeon RX 7800 XT`.
 
@@ -37,4 +38,5 @@
 
 - Use Unit 12 as the reference benchmark for the next PPO behavior-matching units.
 - Use Unit 13 as the supervised baseline that future GA behavior-matching runs should try to beat.
+- Expand Unit 14 to full benchmark coverage and then compare it directly against Unit 13 as the first practical test of the hypothesis.
 - Keep per-machine GPU/Python setup notes current as machines are used.
