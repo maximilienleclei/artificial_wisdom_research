@@ -16,6 +16,7 @@
 
 - This is the baseline that the upcoming GA behavior-matching unit should beat on the same closed-loop benchmark.
 - The supervised clone should report both training and validation action accuracy before the closed-loop benchmark comparison.
+- As of April 23, 2026, the timed training loop no longer stops early on high validation accuracy; timed slices now run to the allotted wall-clock budget unless killed externally.
 
 ## Verification
 
@@ -42,6 +43,9 @@
   - closed-loop benchmark completed `2` Unit 12 seeds within the same `6s` total cap
   - clone return mean/std `490.0 / 10.0`
   - action-switch-rate mean delta vs PPO `0.0454`
+- Verification fix on April 23, 2026 confirmed the early-stop removal and unit-local path defaults:
+  - a `20s` timed verification slice ran through the full allotted slice (`elapsed_s=20.004`)
+  - verification result: train accuracy `0.9578`, validation accuracy `1.0000`, clone return mean `461.10`
 
 ## Artifacts
 

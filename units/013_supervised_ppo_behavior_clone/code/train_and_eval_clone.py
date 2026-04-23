@@ -15,6 +15,14 @@ from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 UNIT8_CODE = Path(__file__).resolve().parents[2] / "008_torch_cartpole_physics_parity" / "code"
+UNIT_DIR = Path(__file__).resolve().parents[1]
+UNIT12_DIR = Path(__file__).resolve().parents[2] / "012_ppo_behavior_benchmark"
+UNIT3_MODEL_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "003_cartpole_sb3_ppo_action_imitation"
+    / "model"
+    / "ppo-CartPole-v1.zip"
+)
 if str(UNIT8_CODE) not in sys.path:
     sys.path.insert(0, str(UNIT8_CODE))
 
@@ -58,22 +66,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--val-fraction", type=float, default=0.2)
     parser.add_argument("--collect-fraction", type=float, default=0.45)
     parser.add_argument("--train-fraction", type=float, default=0.35)
-    parser.add_argument("--eval-summary-path", default="../../012_ppo_behavior_benchmark/plot/summary.json")
-    parser.add_argument("--eval-episodes-path", default="../../012_ppo_behavior_benchmark/plot/episode_metrics.csv")
-    parser.add_argument(
-        "--target-agent-path",
-        default=str(
-            Path(__file__).resolve().parents[2]
-            / "003_cartpole_sb3_ppo_action_imitation"
-            / "model"
-            / "ppo-CartPole-v1.zip"
-        ),
-    )
-    parser.add_argument("--dataset-path", default="../data/ppo_train_dataset.csv")
-    parser.add_argument("--model-path", default="../model/clone_policy.pt")
-    parser.add_argument("--metrics-path", default="../model/metrics.json")
-    parser.add_argument("--comparison-path", default="../plot/benchmark_comparison.json")
-    parser.add_argument("--episode-metrics-path", default="../plot/episode_metrics.csv")
+    parser.add_argument("--eval-summary-path", default=str(UNIT12_DIR / "plot" / "summary.json"))
+    parser.add_argument("--eval-episodes-path", default=str(UNIT12_DIR / "plot" / "episode_metrics.csv"))
+    parser.add_argument("--target-agent-path", default=str(UNIT3_MODEL_PATH))
+    parser.add_argument("--dataset-path", default=str(UNIT_DIR / "data" / "ppo_train_dataset.csv"))
+    parser.add_argument("--model-path", default=str(UNIT_DIR / "model" / "clone_policy.pt"))
+    parser.add_argument("--metrics-path", default=str(UNIT_DIR / "model" / "metrics.json"))
+    parser.add_argument("--comparison-path", default=str(UNIT_DIR / "plot" / "benchmark_comparison.json"))
+    parser.add_argument("--episode-metrics-path", default=str(UNIT_DIR / "plot" / "episode_metrics.csv"))
     return parser.parse_args()
 
 
@@ -221,8 +221,6 @@ def train_clone(
         if val_accuracy >= best_val_accuracy:
             best_val_accuracy = val_accuracy
             best_state = {k: v.detach().cpu().clone() for k, v in policy.state_dict().items()}
-        if len(history) >= 1 and history[-1]["val_accuracy"] >= 0.999:
-            break
     if best_state is not None:
         policy.load_state_dict(best_state)
     final_train_accuracy = history[-1]["train_accuracy"] if history else 0.0

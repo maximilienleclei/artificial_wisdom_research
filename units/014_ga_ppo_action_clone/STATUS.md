@@ -15,6 +15,7 @@
 
 - This unit intentionally keeps the task narrow: action fitting first, closed-loop benchmark second.
 - It is meant to answer whether a small GA can beat Unit 13 on the same benchmark without changing the target definition.
+- As of April 23, 2026, the script uses unit-local default output paths and absolute cross-unit benchmark/dataset defaults so detached/background runs do not fail from relative path resolution.
 
 ## Verification
 
@@ -40,6 +41,9 @@
   - closed-loop benchmark completed `6` Unit 12 seeds
   - clone return mean/std `500.0 / 0.0`
   - action-switch-rate mean delta vs PPO `0.0484`
+- Verification fix on April 23, 2026 confirmed the path-default repair:
+  - a `12s` timed verification slice completed successfully instead of failing on Unit 12 path lookup
+  - verification result: best validation accuracy `0.9923`, clone return mean `500.0`
 
 ## Artifacts
 

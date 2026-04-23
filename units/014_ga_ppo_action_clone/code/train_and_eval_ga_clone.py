@@ -12,6 +12,9 @@ import pandas as pd
 import torch
 
 UNIT8_CODE = Path(__file__).resolve().parents[2] / "008_torch_cartpole_physics_parity" / "code"
+UNIT_DIR = Path(__file__).resolve().parents[1]
+UNIT12_DIR = Path(__file__).resolve().parents[2] / "012_ppo_behavior_benchmark"
+UNIT13_DIR = Path(__file__).resolve().parents[2] / "013_supervised_ppo_behavior_clone"
 if str(UNIT8_CODE) not in sys.path:
     sys.path.insert(0, str(UNIT8_CODE))
 
@@ -146,14 +149,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--train-fraction", type=float, default=0.65)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--max-steps", type=int, default=500)
-    parser.add_argument("--dataset-path", default="../../013_supervised_ppo_behavior_clone/data/ppo_train_dataset.csv")
-    parser.add_argument("--eval-summary-path", default="../../012_ppo_behavior_benchmark/plot/summary.json")
-    parser.add_argument("--eval-episodes-path", default="../../012_ppo_behavior_benchmark/plot/episode_metrics.csv")
-    parser.add_argument("--metrics-path", default="../model/metrics.json")
-    parser.add_argument("--best-path", default="../model/best_genome.json")
-    parser.add_argument("--history-path", default="../plot/ga_history.csv")
-    parser.add_argument("--comparison-path", default="../plot/benchmark_comparison.json")
-    parser.add_argument("--episode-metrics-path", default="../plot/episode_metrics.csv")
+    parser.add_argument("--dataset-path", default=str(UNIT13_DIR / "data" / "ppo_train_dataset.csv"))
+    parser.add_argument("--eval-summary-path", default=str(UNIT12_DIR / "plot" / "summary.json"))
+    parser.add_argument("--eval-episodes-path", default=str(UNIT12_DIR / "plot" / "episode_metrics.csv"))
+    parser.add_argument("--metrics-path", default=str(UNIT_DIR / "model" / "metrics.json"))
+    parser.add_argument("--best-path", default=str(UNIT_DIR / "model" / "best_genome.json"))
+    parser.add_argument("--history-path", default=str(UNIT_DIR / "plot" / "ga_history.csv"))
+    parser.add_argument("--comparison-path", default=str(UNIT_DIR / "plot" / "benchmark_comparison.json"))
+    parser.add_argument("--episode-metrics-path", default=str(UNIT_DIR / "plot" / "episode_metrics.csv"))
     return parser.parse_args()
 
 
