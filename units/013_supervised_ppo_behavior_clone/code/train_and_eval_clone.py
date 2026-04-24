@@ -67,7 +67,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-lr-scale", type=float, default=0.05)
     parser.add_argument("--val-fraction", type=float, default=0.2)
     parser.add_argument("--collect-fraction", type=float, default=0.1)
-    parser.add_argument("--train-fraction", type=float, default=0.9)
     parser.add_argument("--val-interval-s", type=float, default=30.0)
     parser.add_argument("--eval-summary-path", default=str(UNIT12_DIR / "plot" / "summary.json"))
     parser.add_argument("--eval-episodes-path", default=str(UNIT12_DIR / "plot" / "episode_metrics.csv"))
@@ -413,7 +412,6 @@ def main(args: argparse.Namespace) -> None:
     start = time.perf_counter()
     total_deadline = start + args.time_budget_s
     collect_deadline = start + args.time_budget_s * args.collect_fraction
-    fit_deadline = start + args.time_budget_s * args.train_fraction
     dataset_path = Path(args.dataset_path)
     metrics_path = Path(args.metrics_path)
     comparison_path = Path(args.comparison_path)
@@ -478,7 +476,7 @@ def main(args: argparse.Namespace) -> None:
         train_examples=train_count,
         val_examples=val_count,
         train_start=start,
-        total_deadline=fit_deadline,
+        total_deadline=total_deadline,
         val_interval_s=args.val_interval_s,
         metrics_path=metrics_path,
         comparison_path=comparison_path,
@@ -491,7 +489,8 @@ def main(args: argparse.Namespace) -> None:
     latest_episode_rows: list[dict] = []
     if not train_history:
         raise RuntimeError("Time budget expired before clone training completed one epoch.")
-    if not latest_episode_rows:
+    closed_loop_evaluated = False
+    if not latest_episode_rows and time.perf_counter() < total_deadline:
         latest_rollout_rows, latest_episode_rows = evaluate_clone(
             policy=policy,
             eval_seeds=eval_seeds,
@@ -499,10 +498,12 @@ def main(args: argparse.Namespace) -> None:
             device=device,
             deadline=total_deadline,
         )
-    if not latest_episode_rows:
-        raise RuntimeError("Time budget expired before clone evaluation completed one episode.")
-    write_csv(Path(args.episode_metrics_path), latest_episode_rows)
-    clone_summary = summarize_rollouts(latest_rollout_rows, latest_episode_rows)
+    if latest_episode_rows:
+        closed_loop_evaluated = True
+        write_csv(Path(args.episode_metrics_path), latest_episode_rows)
+        clone_summary = summarize_rollouts(latest_rollout_rows, latest_episode_rows)
+    else:
+        clone_summary = {"episodes_completed": 0}
     reference_summary = json.loads(Path(args.eval_summary_path).read_text())
     comparison = {
         "device": str(device),
@@ -525,6 +526,7 @@ def main(args: argparse.Namespace) -> None:
         "train_accuracy": float(train_history[-1]["train_accuracy"]),
         "best_val_accuracy": float(best_val_accuracy),
         "elapsed_s": round(time.perf_counter() - start, 3),
+        "closed_loop_evaluated": closed_loop_evaluated,
         "reference": {
             "return_mean": reference_summary["return_mean"],
             "return_std": reference_summary["return_std"],
@@ -534,28 +536,35 @@ def main(args: argparse.Namespace) -> None:
             "action_switch_rate_mean": reference_summary["action_switch_rate_mean"],
         },
         "clone": clone_summary,
-        "deltas": {
-            "return_mean_abs": abs(clone_summary["return_mean"] - reference_summary["return_mean"]),
-            "return_std_abs": abs(clone_summary["return_std"] - reference_summary["return_std"]),
-            "length_mean_abs": abs(clone_summary["length_mean"] - reference_summary["length_mean"]),
-            "length_std_abs": abs(clone_summary["length_std"] - reference_summary["length_std"]),
-            "action_one_rate_mean_abs": abs(clone_summary["action_one_rate_mean"] - reference_summary["action_one_rate_mean"]),
-            "action_switch_rate_mean_abs": abs(clone_summary["action_switch_rate_mean"] - reference_summary["action_switch_rate_mean"]),
-        },
+        "deltas": (
+            {
+                "return_mean_abs": abs(clone_summary["return_mean"] - reference_summary["return_mean"]),
+                "return_std_abs": abs(clone_summary["return_std"] - reference_summary["return_std"]),
+                "length_mean_abs": abs(clone_summary["length_mean"] - reference_summary["length_mean"]),
+                "length_std_abs": abs(clone_summary["length_std"] - reference_summary["length_std"]),
+                "action_one_rate_mean_abs": abs(clone_summary["action_one_rate_mean"] - reference_summary["action_one_rate_mean"]),
+                "action_switch_rate_mean_abs": abs(clone_summary["action_switch_rate_mean"] - reference_summary["action_switch_rate_mean"]),
+            }
+            if closed_loop_evaluated
+            else None
+        ),
         "train_history": train_history,
     }
     metrics_path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(policy.state_dict(), args.model_path)
     write_progress_snapshot(metrics_path, comparison_path, comparison)
     print(
-        "dataset_steps={dataset_steps} train_acc={train_accuracy:.4f} clone_return_mean={clone_return:.2f} "
-        "val_acc={val_accuracy:.4f} return_delta={return_delta:.2f} switch_delta={switch_delta:.4f}".format(
+        "dataset_steps={dataset_steps} train_acc={train_accuracy:.4f} val_acc={val_accuracy:.4f} "
+        "closed_loop_evaluated={closed_loop_evaluated} clone_return_mean={clone_return}".format(
             dataset_steps=comparison["dataset_steps"],
             train_accuracy=comparison["train_accuracy"],
             val_accuracy=comparison["best_val_accuracy"],
-            clone_return=comparison["clone"]["return_mean"],
-            return_delta=comparison["deltas"]["return_mean_abs"],
-            switch_delta=comparison["deltas"]["action_switch_rate_mean_abs"],
+            closed_loop_evaluated=str(comparison["closed_loop_evaluated"]).lower(),
+            clone_return=(
+                f"{comparison['clone']['return_mean']:.2f}"
+                if comparison["closed_loop_evaluated"]
+                else "n/a"
+            ),
         )
     )
 

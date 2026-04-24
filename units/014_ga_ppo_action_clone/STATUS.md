@@ -18,7 +18,7 @@
 - As of April 23, 2026, the script uses unit-local default output paths and absolute cross-unit benchmark/dataset defaults so detached/background runs do not fail from relative path resolution.
 - As of April 23, 2026, the unit also writes inspectable progress snapshots during training and evaluation instead of waiting until process exit for metrics JSON.
 - As of April 23, 2026, the GA no longer keeps unchanged elites. It now samples parents from the top set and mutates the entire next population, with each individual carrying its own mutable `mutation_std`.
-- As of April 23, 2026, evolution now runs continuously, validation is probed every configurable `val_interval_s`, and the final closed-loop benchmark uses the last 10% of the total wall-clock budget.
+- As of April 23, 2026, evolution now runs continuously, validation is probed every configurable `val_interval_s`, and the full wall-clock budget is used for optimization by default rather than reserving an in-run tail for closed-loop evaluation.
 
 ## Verification
 
@@ -70,5 +70,5 @@
 
 ## Next Steps
 
-- Run longer bounded slices under the new `val_interval_s` setup so convergence can be judged from the saved validation curve while still preserving final benchmark coverage.
+- Run longer bounded slices under the new `val_interval_s` setup so convergence can be judged from the saved validation curve, then run closed-loop evaluation as a separate step when needed.
 - Keep using the same frozen dataset when comparing against Unit 13 so the optimizer difference stays isolated.

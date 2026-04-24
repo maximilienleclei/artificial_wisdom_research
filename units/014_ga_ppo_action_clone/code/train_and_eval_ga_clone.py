@@ -153,7 +153,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--initial-mutation-std", type=float, default=0.03)
     parser.add_argument("--mutation-scale-std", type=float, default=0.1)
     parser.add_argument("--val-fraction", type=float, default=0.2)
-    parser.add_argument("--train-fraction", type=float, default=0.9)
     parser.add_argument("--val-interval-s", type=float, default=30.0)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--max-steps", type=int, default=500)
@@ -286,10 +285,7 @@ def main(args: argparse.Namespace) -> None:
     selection_generator.manual_seed(args.seed + 10_000)
     latest_episode_rows: list[dict] = []
     next_val_at = start
-    fit_deadline = start + args.time_budget_s * args.train_fraction
     while time.perf_counter() < deadline:
-        if time.perf_counter() >= fit_deadline:
-            break
         fitness = fitness_on_dataset(population, train_x, train_y)
         optimization_forward_example_evals += int(population.population_size * train_x.shape[0])
         parent_fit, parent_idx = torch.topk(fitness, k=args.parent_count, largest=True, sorted=True)
@@ -339,7 +335,8 @@ def main(args: argparse.Namespace) -> None:
 
     if not history or best_json is None:
         raise RuntimeError("Time budget expired before GA clone completed one generation.")
-    if not latest_episode_rows:
+    closed_loop_evaluated = False
+    if not latest_episode_rows and time.perf_counter() < deadline:
         latest_episode_rows = evaluate_population_best(
             best_json=best_json,
             eval_seeds=eval_seeds,
@@ -347,12 +344,12 @@ def main(args: argparse.Namespace) -> None:
             device=device,
             deadline=deadline,
         )
-    if not latest_episode_rows:
-        raise RuntimeError("Time budget expired before GA clone evaluation completed one episode.")
-    write_csv(Path(args.episode_metrics_path), latest_episode_rows)
+    if latest_episode_rows:
+        closed_loop_evaluated = True
+        write_csv(Path(args.episode_metrics_path), latest_episode_rows)
 
     reference = json.loads(Path(args.eval_summary_path).read_text())
-    clone_df = pd.DataFrame(latest_episode_rows)
+    clone_df = pd.DataFrame(latest_episode_rows) if latest_episode_rows else None
     comparison = {
         "device": str(device),
         "time_budget_s": args.time_budget_s,
@@ -363,6 +360,7 @@ def main(args: argparse.Namespace) -> None:
         "optimization_forward_flops_estimate": int(optimization_forward_example_evals * forward_flops_per_example(args.hidden_size)),
         "best_train_accuracy": float(history[-1]["train_accuracy"]),
         "best_val_accuracy": float(best_val_accuracy),
+        "closed_loop_evaluated": closed_loop_evaluated,
         "ga_strategy": {
             "selection": "top_k_parent_sampling",
             "parent_count": args.parent_count,
@@ -381,34 +379,45 @@ def main(args: argparse.Namespace) -> None:
             "action_one_rate_mean": reference["action_one_rate_mean"],
             "action_switch_rate_mean": reference["action_switch_rate_mean"],
         },
-        "clone": {
-            "episodes_completed": int(len(latest_episode_rows)),
-            "return_mean": float(clone_df["return"].mean()),
-            "return_std": float(clone_df["return"].std(ddof=0)),
-            "length_mean": float(clone_df["length"].mean()),
-            "length_std": float(clone_df["length"].std(ddof=0)),
-            "action_one_rate_mean": float(clone_df["action_one_rate"].mean()),
-            "action_one_rate_std": float(clone_df["action_one_rate"].std(ddof=0)),
-            "action_switch_rate_mean": float(clone_df["action_switch_rate"].mean()),
-            "action_switch_rate_std": float(clone_df["action_switch_rate"].std(ddof=0)),
-        },
-        "deltas": {
-            "return_mean_abs": abs(float(clone_df["return"].mean()) - reference["return_mean"]),
-            "return_std_abs": abs(float(clone_df["return"].std(ddof=0)) - reference["return_std"]),
-            "length_mean_abs": abs(float(clone_df["length"].mean()) - reference["length_mean"]),
-            "length_std_abs": abs(float(clone_df["length"].std(ddof=0)) - reference["length_std"]),
-            "action_one_rate_mean_abs": abs(float(clone_df["action_one_rate"].mean()) - reference["action_one_rate_mean"]),
-            "action_switch_rate_mean_abs": abs(float(clone_df["action_switch_rate"].mean()) - reference["action_switch_rate_mean"]),
-        },
+        "clone": (
+            {
+                "episodes_completed": int(len(latest_episode_rows)),
+                "return_mean": float(clone_df["return"].mean()),
+                "return_std": float(clone_df["return"].std(ddof=0)),
+                "length_mean": float(clone_df["length"].mean()),
+                "length_std": float(clone_df["length"].std(ddof=0)),
+                "action_one_rate_mean": float(clone_df["action_one_rate"].mean()),
+                "action_one_rate_std": float(clone_df["action_one_rate"].std(ddof=0)),
+                "action_switch_rate_mean": float(clone_df["action_switch_rate"].mean()),
+                "action_switch_rate_std": float(clone_df["action_switch_rate"].std(ddof=0)),
+            }
+            if closed_loop_evaluated
+            else {"episodes_completed": 0}
+        ),
+        "deltas": (
+            {
+                "return_mean_abs": abs(float(clone_df["return"].mean()) - reference["return_mean"]),
+                "return_std_abs": abs(float(clone_df["return"].std(ddof=0)) - reference["return_std"]),
+                "length_mean_abs": abs(float(clone_df["length"].mean()) - reference["length_mean"]),
+                "length_std_abs": abs(float(clone_df["length"].std(ddof=0)) - reference["length_std"]),
+                "action_one_rate_mean_abs": abs(float(clone_df["action_one_rate"].mean()) - reference["action_one_rate_mean"]),
+                "action_switch_rate_mean_abs": abs(float(clone_df["action_switch_rate"].mean()) - reference["action_switch_rate_mean"]),
+            }
+            if closed_loop_evaluated
+            else None
+        ),
         "history": history,
     }
     write_progress_snapshot(metrics_path, comparison_path, comparison)
     print(
-        "best_val_acc={val_acc:.4f} clone_return_mean={clone_return:.2f} return_delta={return_delta:.2f} switch_delta={switch_delta:.4f}".format(
+        "best_val_acc={val_acc:.4f} closed_loop_evaluated={closed_loop_evaluated} clone_return_mean={clone_return}".format(
             val_acc=comparison["best_val_accuracy"],
-            clone_return=comparison["clone"]["return_mean"],
-            return_delta=comparison["deltas"]["return_mean_abs"],
-            switch_delta=comparison["deltas"]["action_switch_rate_mean_abs"],
+            closed_loop_evaluated=str(comparison["closed_loop_evaluated"]).lower(),
+            clone_return=(
+                f"{comparison['clone']['return_mean']:.2f}"
+                if comparison["closed_loop_evaluated"]
+                else "n/a"
+            ),
         )
     )
 

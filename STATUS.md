@@ -18,7 +18,7 @@
 - Units 13 and 14 were repaired on April 23, 2026 for proper convergence slices: Unit 13 no longer stops early on high validation accuracy, and both units now use robust unit-local / absolute default paths that survive detached background launches.
 - Units 13 and 14 now also flush inspectable progress snapshots mid-run, so convergence/status checks no longer have to wait for process exit to see useful state.
 - Unit 13 now uses `AdamW` plus a linear-warmup cosine-decay schedule rather than a fixed LR; a short verification slice reached validation accuracy `1.0000`, return mean `498.29`, and switch-rate delta `0.0158`.
-- Units 13 and 14 now train/evolve continuously, run validation probes every configurable `val_interval_s`, and reserve the final 10% of the wall-clock budget for the final closed-loop behavior benchmark.
+- Units 13 and 14 now use the full wall-clock budget for optimization and run validation probes every configurable `val_interval_s`; closed-loop behavior evaluation is no longer given a reserved in-run time slice by default.
 - Known machine environment: NVIDIA RTX 5070 Ti Laptop GPU with `C:\Users\Max\venv`, Python `3.14.3`, PyTorch `2.11.0+cu130`; CUDA reports one RTX 5070 Ti Laptop GPU.
 - Known machine environment: AMD Radeon RX 7800 XT with `C:\Users\Max\venv`, PyTorch `2.9.1+rocm7.2.1`; PyTorch reports `cuda=True`, HIP `7.2.53211-158bd99533`, and device name `AMD  Radeon RX 7800 XT`.
 

@@ -19,7 +19,7 @@
 - As of April 23, 2026, the timed training loop no longer stops early on high validation accuracy; timed slices now run to the allotted wall-clock budget unless killed externally.
 - As of April 23, 2026, the unit writes inspectable progress snapshots during dataset, training, and evaluation stages instead of waiting until process exit.
 - As of April 23, 2026, the supervised optimizer uses `AdamW` with a linear-warmup cosine-decay learning-rate schedule instead of a fixed learning rate.
-- As of April 23, 2026, training now runs continuously, validation is probed every configurable `val_interval_s`, and the final closed-loop benchmark uses the last 10% of the total wall-clock budget.
+- As of April 23, 2026, training now runs continuously, validation is probed every configurable `val_interval_s`, and the full wall-clock budget is used for optimization by default rather than reserving an in-run tail for closed-loop evaluation.
 
 ## Verification
 
@@ -72,5 +72,5 @@
 
 ## Next Steps
 
-- Run longer bounded slices under the new `val_interval_s` setup so convergence can be judged from the saved validation curve while still preserving final benchmark coverage.
+- Run longer bounded slices under the new `val_interval_s` setup so convergence can be judged from the saved validation curve, then run closed-loop evaluation as a separate step when needed.
 - Compare this baseline against Unit 14 as the fair same-dataset optimizer comparison.
