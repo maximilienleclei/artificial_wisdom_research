@@ -29,6 +29,7 @@
 - The user wants high-level, complete project direction while Codex handles implementation details under the hood.
 - The user does not want to read repo files; chat is the only expected user interface.
 - Repo docs are the durable memory for preferences, decisions, experiment results, constraints, artifacts, and next steps.
+- `STATUS.md` is the main handoff doc for fresh sessions; relevant unit-local docs under `units/` and `BACKGROUND_RUNS.md` are secondary handoff docs when applicable.
 - Durable docs should stay small, deletion-first, and split by stability: keep long-lived operating rules and foundations in shared docs, current truth and next decisions in `STATUS.md`, and experiment-specific or likely-to-age details inside the relevant unit docs.
 - Experiments and datasets should remain rerunnable/reusable, usually by archiving unit-specific code/data/results, but active work should not carry backwards-compatibility burden.
 - Mutable executable code should not live outside `units/`; repo-root docs are fine to keep shared, but runnable code that affects experiment replay should live in a numbered unit so later edits cannot silently change archived reruns.

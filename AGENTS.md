@@ -4,7 +4,7 @@
 2. Treat repo docs as durable memory. Anything important enough to survive a session must be written down, not just acknowledged in chat.
 3. The user wants to operate at a high level: report goals, results, constraints, and next decisions; keep implementation details under the hood unless asked.
 4. The user does not want to read repo files. Communicate all user-facing state, decisions, and summaries through chat; repo docs are for agent continuity.
-5. After any meaningful change, update the handoff docs so a new agent can quickly understand current experiments, decisions, results, constraints, artifacts, and next steps.
+5. After any meaningful change, update the handoff docs so a new agent can quickly understand current experiments, decisions, results, constraints, artifacts, and next steps. In this repo, the main handoff doc is `STATUS.md`; relevant unit-local docs under `units/` and `BACKGROUND_RUNS.md` are secondary handoff docs when applicable.
 6. After any meaningful verified codebase or workflow change, stage and commit it by default unless the user explicitly says not to commit yet.
 7. Preserve experiments so they can be rerun, but do not burden active work with backwards compatibility.
 8. Before implementing a new experiment, default to rewriting the codebase for that experiment and archiving the previous codebase. Only extend an existing codebase when there is substantial overlap such that a rewrite would mostly recreate the same code.
@@ -13,7 +13,7 @@
 11. Expect the user to work across multiple machines. Record machine-specific environment facts, but do not assume one GPU or Python stack is permanent.
 12. For archived units, put generated plots and plot-adjacent metrics in that unit's `plot/` folder; units without plots should not have a `plot/` folder.
 13. Keep handoff docs future-useful and deletion-first: preserve only information that still affects future decisions, reproducibility, constraints, artifact discovery, or user preferences, and prune stale process history or temporary housekeeping.
-14. Keep durable memory split by stability: put long-lived operating rules and foundations in shared repo docs, current truth and next decisions in the handoff doc, and experiment-specific or likely-to-age details inside the relevant unit docs.
+14. Keep durable memory split by stability: put long-lived operating rules and foundations in shared repo docs, current truth and next decisions in `STATUS.md`, and experiment-specific or likely-to-age details inside the relevant unit docs.
 15. Run experiments against explicit wall-clock time budgets by default. Time is the primary run contract; epochs, generations, iterations, and steps are secondary caps or reporting details, and the full budget should go to optimization unless the user explicitly asks for an in-run evaluation split or another stop rule.
 16. Every shell/tool execution must have an explicit finite timeout by default. For bounded runs, the wall-clock cap must apply from process launch, enforced with an OS-level hard kill/watchdog plus any internal deadline, and startup/loading/teardown all count toward the budget unless the user says otherwise.
 17. A bounded run is a safety slice, not evidence of convergence. Judge convergence from repeated bounded slices and saved curves, not from a single time-capped run.
