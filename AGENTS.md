@@ -4,7 +4,7 @@
 2. Treat repo docs as durable memory. Anything important enough to survive a session must be written down, not just acknowledged in chat.
 3. The user wants to operate at a high level: report goals, results, constraints, and next decisions; keep implementation details under the hood unless asked.
 4. The user does not want to read repo files. Communicate all user-facing state, decisions, and summaries through chat; repo docs are for agent continuity.
-5. After any meaningful change, update the handoff docs so a new agent can quickly understand current experiments, decisions, results, constraints, artifacts, and next steps. In this repo, the main handoff doc is `STATUS.md`; relevant unit-local docs under `units/` and `BACKGROUND_RUNS.md` are secondary handoff docs when applicable.
+5. After any meaningful change, update the handoff docs so a new agent can quickly understand current experiments, decisions, results, constraints, artifacts, and next steps. In this repo, the main handoff doc is `STATUS.md`; relevant unit-local docs under `units/` are secondary handoff docs when applicable.
 6. After any meaningful verified codebase or workflow change, stage and commit it by default unless the user explicitly says not to commit yet.
 7. Preserve experiments so they can be rerun, but do not burden active work with backwards compatibility.
 8. Before implementing a new experiment, default to rewriting the codebase for that experiment and archiving the previous codebase. Only extend an existing codebase when there is substantial overlap such that a rewrite would mostly recreate the same code.
