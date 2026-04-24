@@ -2,6 +2,10 @@
 
 Background runs are allowed in this repo when they improve responsiveness, but they must follow a strict tracking pattern.
 
+The executable workflow code for this pattern now lives in:
+
+- `units/013_experiment_runtime_tooling/code/`
+
 ## Goals
 
 - keep chat responsive while longer optimization continues
