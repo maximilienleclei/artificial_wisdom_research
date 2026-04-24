@@ -7,7 +7,7 @@
 5. After any meaningful change, update the handoff docs so a new agent can quickly understand current experiments, decisions, results, constraints, artifacts, and next steps.
 6. After any meaningful verified codebase or workflow change, stage and commit it by default unless the user explicitly says not to commit yet.
 7. Preserve experiments so they can be rerun, but do not burden active work with backwards compatibility.
-8. Before implementing a new experiment, decide whether it is cleaner to rewrite the codebase for that experiment and archive the previous codebase.
+8. Before implementing a new experiment, default to rewriting the codebase for that experiment and archiving the previous codebase. Only extend an existing codebase when there is substantial overlap such that a rewrite would mostly recreate the same code.
 9. Organize archived research units as numbered folders named like `XXX_name`.
 10. Treat the repo as an evolving archive of unit-specific code/data/results, with the current branch optimized for the active experiment.
 11. Do not keep mutable executable experiment code outside `units/`. Repo-root `.md` files may stay shared, but any code that affects reruns must live in a numbered unit so later edits do not silently change older units. If shared executable code already exists outside `units/`, treat it as migration debt and move it into its own numbered unit instead of continuing to evolve it in place.

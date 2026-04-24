@@ -36,7 +36,7 @@
 - Mutable executable code should not live outside `units/`; repo-root docs are fine to keep shared, but runnable code that affects experiment replay should live in a numbered unit so later edits cannot silently change archived reruns.
 - Archived research units should use numbered folders like `XXX_name`.
 - Units with plotted outputs should write those outputs under their own `plot/` folder; no-plot units should not create a `plot/` folder.
-- Before building a new experiment, Codex should consider whether a rewrite is cleaner than extending the current code.
+- Before building a new experiment, default to a rewrite plus archive rather than extending the current code. Reuse/extension is the exception and should happen only when there is substantial overlap such that a rewrite would mostly recreate the same code.
 - Experiments should default to explicit wall-clock budgets; generations, epochs, iterations, and steps are secondary caps or reported outcomes. Enforce budgets with both internal deadlines and external hard process timeouts, and flush artifacts incrementally.
 - Every shell/tool execution should use an explicit finite timeout by default; anything beyond a brief read/listing needs a hard kill path.
 - Strict time caps must apply from process launch, not from after Python startup or model loading. For bounded runs, use an OS-level kill wrapper in the command itself in addition to any internal deadline.
