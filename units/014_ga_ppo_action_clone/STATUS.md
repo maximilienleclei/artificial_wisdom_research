@@ -69,6 +69,7 @@
   - final probe used all `13` Unit 12 benchmark seeds
   - final action-switch-rate delta vs PPO about `0.0089`
   - comparison plot saved at `plot/u013_u014_5min_behavior_compare.svg`
+  - log-scale saturation view saved at `plot/u013_u014_5min_behavior_saturation_log.svg`
 
 ## Artifacts
 
