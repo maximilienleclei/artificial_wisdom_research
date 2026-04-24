@@ -34,7 +34,6 @@
 - Mutable executable code should not live outside `units/`; repo-root docs are fine to keep shared, but runnable code that affects experiment replay should live in a numbered unit so later edits cannot silently change archived reruns.
 - Archived research units should use numbered folders like `XXX_name`.
 - Units with plotted outputs should write those outputs under their own `plot/` folder; no-plot units should not create a `plot/` folder.
-- When optimizing experiments, report concrete throughput or outcome numbers rather than relying on epochs, generations, or similar loop counters alone.
 - Before building a new experiment, default to a rewrite plus archive rather than extending the current code. Reuse/extension is the exception and should happen only when there is substantial overlap such that a rewrite would mostly recreate the same code.
 - Experiments should default to explicit wall-clock budgets, with elapsed wall-clock time as the default stop contract and optimization using the full budget unless the user asks for another split or stop rule. Generations, epochs, iterations, and steps are secondary caps or reporting details.
 - Every shell/tool execution should use an explicit finite timeout by default. For bounded runs, the wall-clock cap must apply from process launch via an OS-level hard kill/watchdog plus any internal deadline, and startup/loading/teardown all count toward the budget unless the user says otherwise.
