@@ -29,23 +29,19 @@
 - The user wants high-level, complete project direction while Codex handles implementation details under the hood.
 - The user does not want to read repo files; chat is the only expected user interface.
 - Repo docs are the durable memory for preferences, decisions, experiment results, constraints, artifacts, and next steps.
-- Durable docs should stay small and deletion-first: only keep information that should still shape future decisions, and remove points once they stop being decision-relevant.
-- Keep durable memory split by stability: put long-lived research foundations and operating rules in shared repo docs, current truth and next decisions in `STATUS.md`, and experiment-specific or likely-to-age details inside the relevant unit docs.
-- Do not let temporary guesses, process chatter, stale implementation plans, or historical breadcrumbs accumulate in shared core docs unless they materially affect future reproducibility or decisions.
+- Durable docs should stay small, deletion-first, and split by stability: keep long-lived operating rules and foundations in shared docs, current truth and next decisions in `STATUS.md`, and experiment-specific or likely-to-age details inside the relevant unit docs.
 - Experiments and datasets should remain rerunnable/reusable, usually by archiving unit-specific code/data/results, but active work should not carry backwards-compatibility burden.
 - Mutable executable code should not live outside `units/`; repo-root docs are fine to keep shared, but runnable code that affects experiment replay should live in a numbered unit so later edits cannot silently change archived reruns.
 - Archived research units should use numbered folders like `XXX_name`.
 - Units with plotted outputs should write those outputs under their own `plot/` folder; no-plot units should not create a `plot/` folder.
+- When optimizing experiments, report concrete throughput or outcome numbers rather than relying on epochs, generations, or similar loop counters alone.
 - Before building a new experiment, default to a rewrite plus archive rather than extending the current code. Reuse/extension is the exception and should happen only when there is substantial overlap such that a rewrite would mostly recreate the same code.
-- Experiments should default to explicit wall-clock budgets; generations, epochs, iterations, and steps are secondary caps or reported outcomes. Enforce budgets with both internal deadlines and external hard process timeouts, and flush artifacts incrementally.
-- Every shell/tool execution should use an explicit finite timeout by default; anything beyond a brief read/listing needs a hard kill path.
-- Strict time caps must apply from process launch, not from after Python startup or model loading. For bounded runs, use an OS-level kill wrapper in the command itself in addition to any internal deadline.
-- Background runs must remain invisible to the user; do not use execution patterns that pop open visible terminal windows or consoles.
-- Time-bounded runs are safety slices, not convergence claims. Convergence should be judged across repeated bounded slices from saved optimization curves, not inferred from a single timeout-limited run.
-- For time-budgeted runs, elapsed wall-clock time is the default stop contract. Do not treat target accuracy, plateau checks, solved thresholds, or fixed epoch counts as implicit early-stop rules unless the user explicitly asked for them.
-- Useful state should not be hidden until exit. Runs and analyses that progress over time should flush inspectable progress artifacts during execution so status and convergence can be checked mid-run.
-- When using background runs, keep them fully trackable with unique run names, run-specific output directories, and machine-readable status files. Do not overwrite canonical artifacts until the background run finishes and is verified.
-- On this Windows setup, the currently validated invisible launcher pattern uses `pythonw.exe` for the detached worker and explicit run-specific output paths.
+- Experiments should default to explicit wall-clock budgets, with elapsed wall-clock time as the default stop contract and optimization using the full budget unless the user asks for another split or stop rule. Generations, epochs, iterations, and steps are secondary caps or reporting details.
+- Every shell/tool execution should use an explicit finite timeout by default. For bounded runs, the wall-clock cap must apply from process launch via an OS-level hard kill/watchdog plus any internal deadline, and startup/loading/teardown all count toward the budget unless the user says otherwise.
+- Time-bounded runs are safety slices, not convergence claims. Judge convergence across repeated bounded slices and saved curves, not from one capped run.
+- Useful progress should not be hidden until exit. Runs and analyses that evolve over time should flush inspectable intermediate state so status and convergence can be checked mid-run.
+- Background runs must stay invisible, trackable, and safe: use hidden/background-safe execution, unique run names, dedicated run-specific output directories, machine-readable status files, and enough information to stop the specific run without guessing.
+- Background runs must not overwrite canonical artifacts while in progress. Prefer one active background run at a time unless the user asks for parallel runs, check status files before summarizing progress, use absolute or clearly unit-local output paths for detached runs, and on this Windows setup prefer `pythonw.exe` for the detached launcher when invisibility matters.
 - The user may move between machines, currently including AMD Radeon RX 7800 XT and NVIDIA RTX 5070 Ti Laptop GPU systems, with more machines possible later.
 - Environment setup should be documented per machine; do not assume one GPU or Python stack is permanent.
 - Before future coding sessions, read this file and recent commits, then give a short orientation.
