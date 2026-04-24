@@ -29,6 +29,7 @@
 - The user does not want to read repo files; chat is the only expected user interface.
 - Repo docs are the durable memory for preferences, decisions, experiment results, constraints, artifacts, and next steps.
 - Experiments and datasets should remain rerunnable/reusable, usually by archiving unit-specific code/data/results, but active work should not carry backwards-compatibility burden.
+- Mutable executable code should not live outside `units/`; repo-root docs are fine to keep shared, but runnable code that affects experiment replay should live in a numbered unit so later edits cannot silently change archived reruns.
 - Archived research units should use numbered folders like `XXX_name`.
 - Units with plotted outputs should write those outputs under their own `plot/` folder; no-plot units should not create a `plot/` folder.
 - Before building a new experiment, Codex should consider whether a rewrite is cleaner than extending the current code.
