@@ -19,7 +19,7 @@
 - As of April 23, 2026, the timed training loop no longer stops early on high validation accuracy; timed slices now run to the allotted wall-clock budget unless killed externally.
 - As of April 23, 2026, the unit writes inspectable progress snapshots during dataset, training, and evaluation stages instead of waiting until process exit.
 - As of April 23, 2026, the supervised optimizer uses `AdamW` with a linear-warmup cosine-decay learning-rate schedule instead of a fixed learning rate.
-- As of April 23, 2026, training and evaluation alternate in repeated time cycles; each cycle trains for about 90% of the cycle and then evaluates the latest checkpoint for the remaining 10%.
+- As of April 23, 2026, training now runs continuously, validation is probed every configurable `val_interval_s`, and the final closed-loop benchmark uses the last 10% of the total wall-clock budget.
 
 ## Verification
 
@@ -55,11 +55,11 @@
   - validation accuracy `1.0000`
   - closed-loop return mean `498.29`
   - action-switch-rate mean delta vs PPO `0.0158`
-- Alternating-cycle verification on April 23, 2026 confirmed the 90/10 pattern:
-  - `30s` total run with `10s` cycles
+- Interval-validation verification on April 23, 2026 confirmed the simpler continuous-training pattern:
+  - `20s` total run with `val_interval_s=5` and `train_fraction=0.9`
   - latest checkpoint validation accuracy `1.0000`
-  - partial fresh eval covered `1` benchmark episode in the eval slice
-  - that partial eval returned `174.0`, illustrating that tight eval slices trade benchmark coverage for more frequent check-ins
+  - closed-loop return mean `482.75`
+  - action-switch-rate mean delta vs PPO `0.0154`
 
 ## Artifacts
 
@@ -72,5 +72,5 @@
 
 ## Next Steps
 
-- Increase benchmark completion count under a split budget so optimization fairness and evaluation coverage can both be reported cleanly.
+- Run longer bounded slices under the new `val_interval_s` setup so convergence can be judged from the saved validation curve while still preserving final benchmark coverage.
 - Compare this baseline against Unit 14 as the fair same-dataset optimizer comparison.

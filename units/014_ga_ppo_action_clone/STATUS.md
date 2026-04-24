@@ -18,7 +18,7 @@
 - As of April 23, 2026, the script uses unit-local default output paths and absolute cross-unit benchmark/dataset defaults so detached/background runs do not fail from relative path resolution.
 - As of April 23, 2026, the unit also writes inspectable progress snapshots during training and evaluation instead of waiting until process exit for metrics JSON.
 - As of April 23, 2026, the GA no longer keeps unchanged elites. It now samples parents from the top set and mutates the entire next population, with each individual carrying its own mutable `mutation_std`.
-- As of April 23, 2026, evolution and evaluation alternate in repeated time cycles; each cycle spends about 90% of its time evolving and the remaining 10% evaluating the latest checkpoint.
+- As of April 23, 2026, evolution now runs continuously, validation is probed every configurable `val_interval_s`, and the final closed-loop benchmark uses the last 10% of the total wall-clock budget.
 
 ## Verification
 
@@ -53,11 +53,11 @@
   - closed-loop return mean `500.0`
   - action-switch-rate mean delta vs PPO `0.0102`
   - final best / mean mutation std about `0.00214 / 0.00213`
-- Alternating-cycle verification on April 23, 2026 confirmed the 90/10 pattern:
-  - `30s` total run with `10s` cycles
-  - latest checkpoint validation accuracy `0.9846`
-  - partial fresh eval covered `2` benchmark episodes in the eval slices
-  - those partial evals kept return mean `500.0` with action-switch-rate mean delta `0.0551`
+- Interval-validation verification on April 23, 2026 confirmed the simpler continuous-evolution pattern:
+  - `20s` total run with `val_interval_s=5` and `train_fraction=0.9`
+  - latest checkpoint validation accuracy `0.9692`
+  - closed-loop return mean `500.0`
+  - action-switch-rate mean delta vs PPO `0.0511`
 
 ## Artifacts
 
@@ -70,5 +70,5 @@
 
 ## Next Steps
 
-- Rerun Unit 14 with a larger time budget so it covers the full Unit 12 benchmark seed set.
+- Run longer bounded slices under the new `val_interval_s` setup so convergence can be judged from the saved validation curve while still preserving final benchmark coverage.
 - Keep using the same frozen dataset when comparing against Unit 13 so the optimizer difference stays isolated.

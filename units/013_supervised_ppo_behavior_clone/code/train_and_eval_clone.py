@@ -68,7 +68,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--val-fraction", type=float, default=0.2)
     parser.add_argument("--collect-fraction", type=float, default=0.1)
     parser.add_argument("--train-fraction", type=float, default=0.9)
-    parser.add_argument("--cycle-seconds", type=float, default=20.0)
+    parser.add_argument("--val-interval-s", type=float, default=30.0)
     parser.add_argument("--eval-summary-path", default=str(UNIT12_DIR / "plot" / "summary.json"))
     parser.add_argument("--eval-episodes-path", default=str(UNIT12_DIR / "plot" / "episode_metrics.csv"))
     parser.add_argument("--target-agent-path", default=str(UNIT3_MODEL_PATH))
@@ -231,7 +231,7 @@ def train_for_slice(
     val_examples: int,
     train_start: float,
     total_deadline: float,
-    slice_deadline: float,
+    val_interval_s: float,
     metrics_path: Path,
     comparison_path: Path,
     model_path: Path,
@@ -241,13 +241,15 @@ def train_for_slice(
 ) -> tuple[list[dict], float, int]:
     train_loader = DataLoader(TensorDataset(train_x, train_y), batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(TensorDataset(val_x, val_y), batch_size=batch_size, shuffle=False)
-    while time.perf_counter() < slice_deadline:
+    next_val_at = train_start
+    current_lr = lr
+    while time.perf_counter() < total_deadline:
         epoch_loss = 0.0
         correct = 0
         total = 0
         policy.train()
         for batch_x, batch_y in train_loader:
-            if time.perf_counter() >= slice_deadline:
+            if time.perf_counter() >= total_deadline:
                 break
             train_progress = (time.perf_counter() - train_start) / max(1e-8, total_deadline - train_start)
             current_lr = lr * scheduled_lr_scale(train_progress, warmup_fraction, min_lr_scale)
@@ -265,13 +267,54 @@ def train_for_slice(
             forward_example_evals += int(batch_y.numel())
         if total == 0:
             break
+        now = time.perf_counter()
+        if now >= next_val_at:
+            val_accuracy, val_loss = evaluate_loader(policy, val_loader, policy.net[0].weight.device, loss_fn)
+            forward_example_evals += val_examples
+            history.append(
+                {
+                    "epoch": len(history) + 1,
+                    "train_loss": epoch_loss / total,
+                    "train_accuracy": correct / total,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_accuracy,
+                    "lr": current_lr,
+                    "elapsed_s": round(now - train_start, 3),
+                }
+            )
+            if val_accuracy >= best_val_accuracy:
+                best_val_accuracy = val_accuracy
+                model_path.parent.mkdir(parents=True, exist_ok=True)
+                torch.save(policy.state_dict(), model_path)
+            write_progress_snapshot(
+                metrics_path,
+                comparison_path,
+                {
+                    "stage": "training",
+                    "elapsed_s": round(now - train_start, 3),
+                    "train_examples": train_examples,
+                    "val_examples": val_examples,
+                    "parameter_count": parameter_count(policy.net[0].out_features),
+                    "optimization_forward_example_evals": int(forward_example_evals),
+                    "scheduler": {
+                        "type": "linear_warmup_cosine_decay",
+                        "base_lr": lr,
+                        "warmup_fraction": warmup_fraction,
+                        "min_lr_scale": min_lr_scale,
+                        "current_lr": current_lr,
+                    },
+                    "history_summary": summarize_partial_history(history),
+                    "train_history": history,
+                },
+            )
+            next_val_at = now + val_interval_s
+    if not history:
         val_accuracy, val_loss = evaluate_loader(policy, val_loader, policy.net[0].weight.device, loss_fn)
-        forward_example_evals += val_examples
         history.append(
             {
-                "epoch": len(history) + 1,
-                "train_loss": epoch_loss / total,
-                "train_accuracy": correct / total,
+                "epoch": 1,
+                "train_loss": epoch_loss / max(1, total),
+                "train_accuracy": correct / max(1, total),
                 "val_loss": val_loss,
                 "val_accuracy": val_accuracy,
                 "lr": current_lr,
@@ -282,27 +325,6 @@ def train_for_slice(
             best_val_accuracy = val_accuracy
             model_path.parent.mkdir(parents=True, exist_ok=True)
             torch.save(policy.state_dict(), model_path)
-        write_progress_snapshot(
-            metrics_path,
-            comparison_path,
-            {
-                "stage": "training",
-                "elapsed_s": round(time.perf_counter() - train_start, 3),
-                "train_examples": train_examples,
-                "val_examples": val_examples,
-                "parameter_count": parameter_count(policy.net[0].out_features),
-                "optimization_forward_example_evals": int(forward_example_evals),
-                "scheduler": {
-                    "type": "linear_warmup_cosine_decay",
-                    "base_lr": lr,
-                    "warmup_fraction": warmup_fraction,
-                    "min_lr_scale": min_lr_scale,
-                    "current_lr": current_lr,
-                },
-                "history_summary": summarize_partial_history(history),
-                "train_history": history,
-            },
-        )
     return history, best_val_accuracy, forward_example_evals
 
 
@@ -391,6 +413,7 @@ def main(args: argparse.Namespace) -> None:
     start = time.perf_counter()
     total_deadline = start + args.time_budget_s
     collect_deadline = start + args.time_budget_s * args.collect_fraction
+    fit_deadline = start + args.time_budget_s * args.train_fraction
     dataset_path = Path(args.dataset_path)
     metrics_path = Path(args.metrics_path)
     comparison_path = Path(args.comparison_path)
@@ -440,73 +463,32 @@ def main(args: argparse.Namespace) -> None:
     optimization_forward_example_evals = 0
     eval_episode_df = pd.read_csv(args.eval_episodes_path)
     eval_seeds = [int(v) for v in eval_episode_df["seed"].tolist()]
+    train_history, best_val_accuracy, optimization_forward_example_evals = train_for_slice(
+        policy=policy,
+        optimizer=optimizer,
+        loss_fn=loss_fn,
+        train_x=train_x,
+        train_y=train_y,
+        val_x=val_x,
+        val_y=val_y,
+        batch_size=args.batch_size,
+        lr=args.lr,
+        warmup_fraction=args.warmup_fraction,
+        min_lr_scale=args.min_lr_scale,
+        train_examples=train_count,
+        val_examples=val_count,
+        train_start=start,
+        total_deadline=fit_deadline,
+        val_interval_s=args.val_interval_s,
+        metrics_path=metrics_path,
+        comparison_path=comparison_path,
+        model_path=model_path,
+        history=train_history,
+        best_val_accuracy=best_val_accuracy,
+        forward_example_evals=optimization_forward_example_evals,
+    )
     latest_rollout_rows: list[dict] = []
     latest_episode_rows: list[dict] = []
-    cycle_train_s = max(0.1, args.cycle_seconds * args.train_fraction)
-    cycle_eval_s = max(0.1, args.cycle_seconds * (1.0 - args.train_fraction))
-    while time.perf_counter() < total_deadline:
-        cycle_start = time.perf_counter()
-        train_slice_deadline = min(total_deadline, cycle_start + cycle_train_s)
-        train_history, best_val_accuracy, optimization_forward_example_evals = train_for_slice(
-            policy=policy,
-            optimizer=optimizer,
-            loss_fn=loss_fn,
-            train_x=train_x,
-            train_y=train_y,
-            val_x=val_x,
-            val_y=val_y,
-            batch_size=args.batch_size,
-            lr=args.lr,
-            warmup_fraction=args.warmup_fraction,
-            min_lr_scale=args.min_lr_scale,
-            train_examples=train_count,
-            val_examples=val_count,
-            train_start=start,
-            total_deadline=total_deadline,
-            slice_deadline=train_slice_deadline,
-            metrics_path=metrics_path,
-            comparison_path=comparison_path,
-            model_path=model_path,
-            history=train_history,
-            best_val_accuracy=best_val_accuracy,
-            forward_example_evals=optimization_forward_example_evals,
-        )
-        eval_slice_deadline = min(total_deadline, cycle_start + cycle_train_s + cycle_eval_s)
-        if train_history:
-            latest_rollout_rows, latest_episode_rows = evaluate_clone(
-                policy=policy,
-                eval_seeds=eval_seeds,
-                max_steps=args.max_steps,
-                device=device,
-                deadline=eval_slice_deadline,
-            )
-            if latest_episode_rows:
-                write_csv(Path(args.episode_metrics_path), latest_episode_rows)
-                write_progress_snapshot(
-                    metrics_path,
-                    comparison_path,
-                    {
-                        "stage": "evaluation",
-                        "elapsed_s": round(time.perf_counter() - start, 3),
-                        "dataset_steps": len(dataset_rows),
-                        "train_examples": train_count,
-                        "val_examples": val_count,
-                        "train_accuracy": float(train_history[-1]["train_accuracy"]),
-                        "best_val_accuracy": float(best_val_accuracy),
-                        "episodes_completed": int(len(latest_episode_rows)),
-                        "partial_return_mean": float(np.mean([row["return"] for row in latest_episode_rows])),
-                        "scheduler": {
-                            "type": "linear_warmup_cosine_decay",
-                            "base_lr": args.lr,
-                            "warmup_fraction": args.warmup_fraction,
-                            "min_lr_scale": args.min_lr_scale,
-                            "current_lr": float(train_history[-1]["lr"]),
-                        },
-                        "train_history": train_history,
-                    },
-                )
-        if time.perf_counter() >= total_deadline:
-            break
     if not train_history:
         raise RuntimeError("Time budget expired before clone training completed one epoch.")
     if not latest_episode_rows:

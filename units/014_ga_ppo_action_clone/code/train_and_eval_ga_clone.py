@@ -154,7 +154,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mutation-scale-std", type=float, default=0.1)
     parser.add_argument("--val-fraction", type=float, default=0.2)
     parser.add_argument("--train-fraction", type=float, default=0.9)
-    parser.add_argument("--cycle-seconds", type=float, default=20.0)
+    parser.add_argument("--val-interval-s", type=float, default=30.0)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--max-steps", type=int, default=500)
     parser.add_argument("--dataset-path", default=str(UNIT13_DIR / "data" / "ppo_train_dataset.csv"))
@@ -285,88 +285,57 @@ def main(args: argparse.Namespace) -> None:
     selection_generator = torch.Generator(device=device)
     selection_generator.manual_seed(args.seed + 10_000)
     latest_episode_rows: list[dict] = []
-    cycle_train_s = max(0.1, args.cycle_seconds * args.train_fraction)
-    cycle_eval_s = max(0.1, args.cycle_seconds * (1.0 - args.train_fraction))
+    next_val_at = start
+    fit_deadline = start + args.time_budget_s * args.train_fraction
     while time.perf_counter() < deadline:
-        cycle_start = time.perf_counter()
-        train_slice_deadline = min(deadline, cycle_start + cycle_train_s)
-        while time.perf_counter() < train_slice_deadline:
-            fitness = fitness_on_dataset(population, train_x, train_y)
-            optimization_forward_example_evals += int(population.population_size * train_x.shape[0])
-            parent_fit, parent_idx = torch.topk(fitness, k=args.parent_count, largest=True, sorted=True)
-            idx0 = int(parent_idx[0].item())
-            train_accuracy = accuracy_for_genome(population, train_x, train_y, idx0)
-            val_accuracy = accuracy_for_genome(population, val_x, val_y, idx0)
-            optimization_forward_example_evals += int(train_x.shape[0] + val_x.shape[0])
-            row = {
-                "generation": generation,
-                "best_fitness": round(float(parent_fit[0].item()), 6),
-                "mean_fitness": round(float(fitness.mean().item()), 6),
-                "train_accuracy": round(train_accuracy, 6),
-                "val_accuracy": round(val_accuracy, 6),
-                "best_mutation_std": round(float(population.mutation_std[idx0].item()), 6),
-                "mean_mutation_std": round(float(population.mutation_std.mean().item()), 6),
-                "elapsed_s": round(time.perf_counter() - start, 3),
-            }
-            history.append(row)
-            write_csv(Path(args.history_path), history)
-            if val_accuracy >= best_val_accuracy:
-                best_val_accuracy = val_accuracy
-                best_json = population.best_json(idx0, float(parent_fit[0].item()))
-                Path(args.best_path).parent.mkdir(parents=True, exist_ok=True)
-                Path(args.best_path).write_text(json.dumps(best_json, indent=2) + "\n")
-            write_progress_snapshot(
-                metrics_path,
-                comparison_path,
-                {
-                    "stage": "training",
-                    "elapsed_s": round(time.perf_counter() - start, 3),
-                    "train_examples": int(train_x.shape[0]),
-                    "val_examples": int(val_x.shape[0]),
-                    "parameter_count": parameter_count(args.hidden_size),
-                    "optimization_forward_example_evals": int(optimization_forward_example_evals),
-                    "best_val_accuracy": float(best_val_accuracy),
-                    "best_mutation_std": float(population.mutation_std[idx0].item()),
-                    "mean_mutation_std": float(population.mutation_std.mean().item()),
-                    "history": history,
-                },
-            )
-            if time.perf_counter() >= train_slice_deadline:
-                break
-            sampled_parent_idx = parent_idx[torch.randint(0, args.parent_count, (args.population_size,), generator=selection_generator, device=device)]
-            population = population.reproduce(sampled_parent_idx, args.mutation_scale_std, args.seed + generation + 1)
-            generation += 1
-        eval_slice_deadline = min(deadline, cycle_start + cycle_train_s + cycle_eval_s)
-        if best_json is not None:
-            latest_episode_rows = evaluate_population_best(
-                best_json=best_json,
-                eval_seeds=eval_seeds,
-                max_steps=args.max_steps,
-                device=device,
-                deadline=eval_slice_deadline,
-            )
-            if latest_episode_rows:
-                write_csv(Path(args.episode_metrics_path), latest_episode_rows)
-                write_progress_snapshot(
-                    metrics_path,
-                    comparison_path,
-                    {
-                        "stage": "evaluation",
-                        "elapsed_s": round(time.perf_counter() - start, 3),
-                        "train_examples": int(train_x.shape[0]),
-                        "val_examples": int(val_x.shape[0]),
-                        "parameter_count": parameter_count(args.hidden_size),
-                        "optimization_forward_example_evals": int(optimization_forward_example_evals),
-                        "best_val_accuracy": float(best_val_accuracy),
-                        "best_mutation_std": float(best_json["mutation_std"]),
-                        "mean_mutation_std": float(population.mutation_std.mean().item()),
-                        "episodes_completed": int(len(latest_episode_rows)),
-                        "partial_return_mean": float(np.mean([row["return"] for row in latest_episode_rows])),
-                        "history": history,
-                    },
-                )
-        if time.perf_counter() >= deadline:
+        if time.perf_counter() >= fit_deadline:
             break
+        fitness = fitness_on_dataset(population, train_x, train_y)
+        optimization_forward_example_evals += int(population.population_size * train_x.shape[0])
+        parent_fit, parent_idx = torch.topk(fitness, k=args.parent_count, largest=True, sorted=True)
+        idx0 = int(parent_idx[0].item())
+        train_accuracy = accuracy_for_genome(population, train_x, train_y, idx0)
+        val_accuracy = None
+        if time.perf_counter() >= next_val_at:
+            val_accuracy = accuracy_for_genome(population, val_x, val_y, idx0)
+            optimization_forward_example_evals += int(val_x.shape[0])
+            next_val_at = time.perf_counter() + args.val_interval_s
+        row = {
+            "generation": generation,
+            "best_fitness": round(float(parent_fit[0].item()), 6),
+            "mean_fitness": round(float(fitness.mean().item()), 6),
+            "train_accuracy": round(train_accuracy, 6),
+            "val_accuracy": round(val_accuracy, 6) if val_accuracy is not None else None,
+            "best_mutation_std": round(float(population.mutation_std[idx0].item()), 6),
+            "mean_mutation_std": round(float(population.mutation_std.mean().item()), 6),
+            "elapsed_s": round(time.perf_counter() - start, 3),
+        }
+        history.append(row)
+        write_csv(Path(args.history_path), history)
+        if val_accuracy is not None and val_accuracy >= best_val_accuracy:
+            best_val_accuracy = val_accuracy
+            best_json = population.best_json(idx0, float(parent_fit[0].item()))
+            Path(args.best_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.best_path).write_text(json.dumps(best_json, indent=2) + "\n")
+        write_progress_snapshot(
+            metrics_path,
+            comparison_path,
+            {
+                "stage": "training",
+                "elapsed_s": round(time.perf_counter() - start, 3),
+                "train_examples": int(train_x.shape[0]),
+                "val_examples": int(val_x.shape[0]),
+                "parameter_count": parameter_count(args.hidden_size),
+                "optimization_forward_example_evals": int(optimization_forward_example_evals),
+                "best_val_accuracy": float(best_val_accuracy) if best_val_accuracy >= 0 else None,
+                "best_mutation_std": float(population.mutation_std[idx0].item()),
+                "mean_mutation_std": float(population.mutation_std.mean().item()),
+                "history": history,
+            },
+        )
+        sampled_parent_idx = parent_idx[torch.randint(0, args.parent_count, (args.population_size,), generator=selection_generator, device=device)]
+        population = population.reproduce(sampled_parent_idx, args.mutation_scale_std, args.seed + generation + 1)
+        generation += 1
 
     if not history or best_json is None:
         raise RuntimeError("Time budget expired before GA clone completed one generation.")
