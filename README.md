@@ -2,50 +2,42 @@
 
 ===
 
-This research codebase is an attempt to bring to light various novel results emanating from an interplay of hypotheses that we describe below.
-
-We have generated several peer-reviewed findings that relate to these hypotheses. They are available to consult at `articles/`.
+This research codebase is an attempt to surface novel results arising from the interplay of hypotheses described below.
 
 —
 
-In an ideal world, each of these described hypotheses ought to further be carefully examined, both independently and in incremental relation to each other, before attempting such a venture.
+Ideally, each of these hypotheses would be examined carefully, both independently and in incremental relation to the others, before undertaking such a venture.
 
-We are however short on time and resources. We are thus taking a “leap of faith” and placing my trust on the many years of thought experiments that we have done on these hypotheses, hoping that it can fill that experimentation gap.
+However, we are constrained by time and resources. We are therefore taking a measured “leap of faith,” placing our trust in a combination of intermediary peer-reviewed findings, theoretical exploration, and many years of conceptual experimentation.
 
 ===
 
 
-Modern AI systems are conceived using only a small subset of all computational methods.
+Modern AI systems draw from only a small subset of the broader landscape of computational methods.
 
-For instance, while the realm of computational search/optimization methods is vast, we only find gradient-based optimization methods in the aforementioned systems.
+For instance, although the space of computational search and optimization methods is vast, today’s dominant AI systems rely heavily on gradient-based optimization.
 
-We can thus deduce that value has been more readily attainable in focusing on this narrow subset of techniques.
+This suggests that, so far, value has been most readily attainable by focusing on this relatively narrow subset of techniques.
 
-The research community is however uncertain about the value reach that the current research efforts are to yield.
-
-We hypothesize that various pockets of value are hardly reachable.
+However, the research community remains uncertain about the ultimate range of value that current research trajectories may yield.
 
 —
 
-There is, in gradient-based optimization, a very tight coupling to the data distribution.
+Gradient-based optimization is tightly coupled to the data distribution.
 
-In that paradigm, computational information of the data distribution is funneled directly into the models’ representation space.
+Within this paradigm, computational information from the data distribution is funneled directly into a model’s representation space.
 
-Our core hypothesis is that there is untapped value in leaving the search/optimization room to explore beyond the confines of data space.
+Our core hypothesis is that there is untapped value in allowing the search/optimization process to explore beyond the confines of the observed data space.
 
-This hypothesis is rooted in the real world observation that creativity often emerges from unpopular/unconventional trajectories.
+This hypothesis is rooted in the real-world observation that creativity often emerges from unpopular, unconventional, or otherwise underexplored trajectories.
 
-Our best bet to execute this vision are evolutionary algorithms.
+Our best bet for executing this vision is through evolutionary algorithms.
 
-In this paradigm, data is retrograded to regularizing and the representation space is now perturbed using random search.
+In this paradigm, data is relegated to a regularizing role, while the representation space is perturbed through random search.
 
-—
+A key downside of evolutionary algorithms is that data influences representation-space formation only indirectly. As a result, information originating from the data distribution is incorporated into the representation space more slowly, less efficiently, and with greater noise than in gradient-based optimization.
 
-X Relative downsides of evolutionary algorithms
-
-Because data is now indirect with respect to representation space formation, data-originating information is encoded into the representation space at a much slower pace.
-
-Realistically, this means that we should extract all of the information available through gradient-based methods so that we do not need to do it with evolution
+Practically, this suggests that we should first extract as much signal as possible using gradient-based methods, reserving evolutionary search for the kinds of exploration that gradients are poorly suited to perform.
 
 X Orchestrating evolutionary algorithms is quite different from orchestrating gradient-based methods.
 
@@ -76,7 +68,12 @@ Each neuron computes a sum of all
 
 X Generational inheritance
 
-Paper 3 extract phrasing
+Generational inheritance transfers genotype, final environment state, final memory state, and cumulative lineage fitness from selected parents to offspring.
+
+A child is initialized from the selected parent’s mutated genotype, resumes from the parent’s stored nonterminal environment state, resumes from the parent’s final memory state, and starts with inherited fitness equal to the parent’s cumulative lineage fitness.
+
+The child is evaluated for E actions, accumulating local reward. If termination occurs before E is exhausted under fixed E=k, reset the environment and use the remaining actions; otherwise descendants of terminal agents start from a fresh environment. After evaluation, store the child’s final env state and memory state, and set fitness = inherited fitness + local reward. Selection is based on this cumulative fitness.
+
 
 In the context of evolutionary adversarial generation, generator memory is straightforward to 
 
@@ -88,6 +85,10 @@ Starts by mapping from the output space back into the output space
 Can start to go fetch from earlier layers after a certain point
 
 X Mutator role
+
+In addition to their generator and discriminator roles, agents also ought to mutate themselves.
+This operation is independent of the random mutations that already occur.
+
 
 Agents are now also able to mutate themselves. In order to do so, they input from network
 
