@@ -1,0 +1,392 @@
+\documentclass{article}
+
+% NeurIPS 2024 style
+\usepackage[final]{neurips_2024}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\title{Is Deep Learning Limiting? Investigations into Behavior Cloning}
+
+\author{
+  Maximilien Le Cle\"{i} \\
+  Universit\'{e} de Montr\'{e}al \\
+  \texttt{maximilien.le.clei@umontreal.ca}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Deep Learning has driven virtually all progress in AI since 2012, yet certain properties of gradient-based optimization---such as differentiability constraints, data hyperdependency, and lack of causal abstraction---may limit its ability to accurately model complex behaviors. In this work, we investigate whether neuroevolution, which optimizes neural networks via evolutionary algorithms, can outperform Deep Learning in behavior cloning tasks. We conduct three experiments: (1) a preliminary scaling analysis comparing Deep Learning and Genetic Algorithms on CartPole, (2) a fair comparison across multiple dataset sizes on CartPole and LunarLander with improved experimental controls, and (3) human behavior cloning with continual learning information. Our findings show that while Deep Learning scales more smoothly with data, Genetic Algorithms are competitive in low-data regimes. Human behavior cloning proves significantly more challenging than imitating pre-trained RL agents, with neither method achieving strong performance. We discuss limitations and future directions for hybrid approaches.
+\end{abstract}
+
+\section{Introduction and Motivation}
+
+Since around 2012, virtually all progress in Artificial Intelligence has been built on backpropagating error signals through ever deeper neural networks---a paradigm known as Deep Learning \cite{lecun2015deep}. Compared to other AI methods, Deep Learning has been far superior at leveraging ever larger amounts of compute and data, and has cemented itself in the fabric of modern technology like no other AI method before.
+
+However, what if some of the assumptions that these methods make, or some of the properties that make them work so well, impose a hard ceiling along certain dimensions of intelligence? In other words, could these methods be fundamentally unable, by themselves, to develop certain aspects of intelligence that we care about?
+
+We hypothesize that several properties of Deep Learning may limit its ability to accurately model complex behaviors:
+
+\begin{enumerate}
+    \item \textbf{The differentiability constraint.} Deep Learning methods, being gradient-based, can only optimize over differentiable functions---a relatively narrow subspace of computable functions. This constraint demands practitioners to proxy further from their desired objective, leading to discrepancies between training success and behavioral fidelity.
+
+    \item \textbf{Data hyperdependency.} Deep Learning model updates are fully data-driven, leaving no room for exploration of parameters in non-data space.
+
+    \item \textbf{Data hunger.} Deep Learning methods are well-known to require large amounts of data to perform well. Their generalization relies heavily on distributional coverage, leading to overfitting on frequent patterns and poor handling of rare or unseen ones.
+
+    \item \textbf{Lack of causal abstraction.} Deep Learning models learn statistical associations rather than causal structures \cite{li2024causal}, limiting their ability to generalize under distributional shifts or infer intent behind observed behavior.
+
+    \item \textbf{Overparameterization bias.} While overparameterization aids optimization, it appears to encourage memorization and smooth interpolation over true understanding \cite{djire2025memorization}, reducing robustness in low-data or out-of-distribution regimes.
+
+    \item \textbf{Representation entanglement.} Internal representations in deep models are highly distributed and entangled \cite{kumar2025representation}, making them harder to interpret or manipulate, and hindering modular reuse of learned components.
+\end{enumerate}
+
+In contrast, neuroevolution---the optimization of neural networks via evolutionary algorithms---offers several advantageous properties. Neuroevolution methods can optimize any function whose outputs can be ranked, incorporate explicit exploration mechanisms (mutation, crossover) that promote discovery beyond data-implied regions, and have more leeway to evolve modular, interpretable structures.
+
+However, neuroevolution's sole reliance on the selection mechanism to propagate information typically results in less efficient scaling compared to Deep Learning's backpropagation. This motivates our investigation: \textit{can we find settings where neuroevolution has practical advantages over Deep Learning?}
+
+We focus on behavior cloning as our testbed. As Richard Feynman once said, ``what I cannot create, I do not understand.'' Behavior cloning---learning to imitate observed actions---provides a direct measure of how well a method can capture and reproduce complex behavioral patterns.
+
+\section{Problem Formulation}
+
+\textbf{Behavior Cloning.} Given a dataset $\mathcal{D} = \{(s_i, a_i)\}_{i=1}^N$ of state-action pairs collected from an expert policy $\pi^*$, the goal is to learn a policy $\pi_\theta$ that maps states to actions such that $\pi_\theta(s) \approx \pi^*(s)$ for states $s$ drawn from the expert's state distribution.
+
+\textbf{Task Formulation.} We frame behavior cloning as supervised classification, where the input is a state observation $s \in \mathbb{R}^d$ and the output is a discrete action $a \in \{1, \ldots, K\}$. The policy network outputs logits that are converted to action probabilities via softmax.
+
+\textbf{Environments.} We focus on low-dimensional control tasks from the Gymnasium library \cite{towers2024gymnasium}:
+\begin{itemize}
+    \item \textbf{CartPole-v1}: Balance a pole on a cart (4 observations, 2 actions)
+    \item \textbf{LunarLander-v2}: Land a spacecraft in a target zone (8 observations, 4 actions)
+    \item \textbf{Acrobot-v1}: Swing a two-link robot to reach a height (6 observations, 3 actions)
+    \item \textbf{MountainCar-v0}: Drive a car up a hill (2 observations, 3 actions)
+\end{itemize}
+
+\textbf{Evaluation Metrics.} We use three complementary metrics:
+\begin{enumerate}
+    \item \textbf{Action Match Rate}: Percentage of test actions that exactly match expert actions
+    \item \textbf{Macro F1 Score}: F1 score averaged across action classes, computed over multiple sampling trials from the policy's action distribution
+    \item \textbf{Episode Return}: Cumulative reward when rolling out the learned policy in the environment
+\end{enumerate}
+
+\section{Methods}
+
+\subsection{Network Architecture}
+
+All methods optimize a two-layer multi-layer perceptron (MLP). For Experiment 1, we use the architecture $[4, 64, 32, 2]$ with ReLU activations (auto-generated by Claude Code). For Experiments 2--3, we use $[\text{input}, 50, \text{output}]$ with tanh activation on the hidden layer. The output layer produces logits that are converted to action probabilities via softmax.
+
+\subsection{Deep Learning}
+
+\textbf{Experiment 1.} We use the Adam optimizer \cite{kingma2014adam} with learning rate $10^{-3}$, batch size 64, and train for 150 epochs. The loss function is cross-entropy.
+
+\textbf{Experiments 2--3.} To ensure a fair comparison with neuroevolution methods (which lack sophisticated optimizers like Adam), we strip Deep Learning down to vanilla stochastic gradient descent (SGD) with learning rate $10^{-3}$ and batch size 32.
+
+\subsection{Genetic Algorithm}
+
+A genetic algorithm (GA) evolves a population of neural networks through cycles of evaluation, selection, and mutation.
+
+\textbf{Experiment 1.} Population size 100, 100 generations, tournament selection ($k=3$) with elitism (best individual preserved), and Gaussian mutation with rate 0.01.
+
+\textbf{Experiments 2--3 (Simple GA).} Population size 50, with 50\% truncation selection: the top-performing half of the population is duplicated to replace the bottom half each generation.
+
+\subsection{Evolution Strategies}
+
+Evolution Strategies (ES) differ from GAs in how they aggregate information across the population. In our \textit{Simple ES} (Experiment 2 only), fitness scores are standardized and converted to weights via softmax. A single new network is created as the fitness-weighted average of all population members, then duplicated across the population.
+
+\subsection{Mutation Strategies}
+
+We implement two mutation strategies for neuroevolution:
+
+\textbf{Fixed Mutation.} For each parameter $\theta_i$, sample noise $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$ where $\sigma = 10^{-3}$, and update $\theta_i \leftarrow \theta_i + \epsilon_i$.
+
+\textbf{Adaptive Mutation.} Each parameter $\theta_i$ maintains its own standard deviation $\sigma_i$, initialized to $10^{-3}$. Each generation:
+\begin{align}
+    \xi_i &\sim \mathcal{N}(0, 10^{-2}) \\
+    \sigma_i &\leftarrow \sigma_i \cdot (1 + \xi_i) \\
+    \epsilon_i &\sim \mathcal{N}(0, \sigma_i^2) \\
+    \theta_i &\leftarrow \theta_i + \epsilon_i
+\end{align}
+This allows per-parameter adaptation of mutation magnitude, analogous to how gradient-based methods apply different update magnitudes to different parameters.
+
+\subsection{Fairness Considerations}
+
+To ensure a fair comparison between Deep Learning and neuroevolution (Experiment 2), we implement several controls:
+
+\begin{enumerate}
+    \item \textbf{Mini-batch evaluation.} Evolutionary algorithms evaluate fitness on mini-batches of the same size as Deep Learning (32 samples), rather than the full dataset.
+
+    \item \textbf{GPU optimization.} We implement batched matrix operations for the entire population, treating population size as an extra tensor dimension. This enables efficient GPU utilization for neuroevolution.
+
+    \item \textbf{Runtime-based comparison.} Rather than comparing based on FLOPs (which can have different computational costs per operation), we compare methods based on wall-clock runtime.
+
+    \item \textbf{Stripped methods.} We reduce both classes of methods to their simplest forms to avoid confounding effects from research development disparity (e.g., Adam vs.\ basic mutation).
+\end{enumerate}
+
+\section{Experiments}
+
+\subsection{Experiment 1: Preliminary Scaling Analysis}
+
+Our first experiment was generated in one-shot using Claude Code, an LLM-based coding assistant. We provided the project proposal and asked for a simple experiment comparing Deep Learning and Genetic Algorithms on CartPole.
+
+\textbf{Data.} We use the CartPole-v1 dataset from HuggingFace \cite{gavenski2024cartpole}, containing 500,000 state-action pairs from a pre-trained PPO policy. We split this into 495,000 training and 5,000 test samples, then subsample training sets of sizes $\{100, 300, 1000, 3000, 10000, 30000\}$.
+
+\textbf{Results.} Figure~\ref{fig:exp1} shows scaling behavior across dataset size and FLOPs. Deep Learning achieves near-perfect performance ($>$99\% action match, 500 episode return) at 10,000--30,000 samples, while the Genetic Algorithm plateaus at approximately 84\% action match with inconsistent episode returns.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{1_dl_vs_ga_scaling_dataset_size_flops/main.png}
+    \caption{Experiment 1: Scaling analysis on CartPole-v1. \textbf{Top row}: Action match rate and episode return vs.\ dataset size. \textbf{Bottom row}: Same metrics vs.\ FLOPs. Deep Learning saturates at near-perfect performance while the Genetic Algorithm plateaus at $\sim$84\% action match.}
+    \label{fig:exp1}
+\end{figure}
+
+\textbf{Issues Discovered.} Upon inspection of the generated code, we found a critical flaw: the Genetic Algorithm evaluated fitness on the \textit{entire} training set each generation, while Deep Learning used mini-batches. This gave Deep Learning significantly more optimization steps (150 epochs $\times$ dataset\_size/64 batches vs.\ 100 generations for GA), making the comparison unfair. This motivated Experiment 2.
+
+\subsection{Experiment 2: Fair Comparison}
+
+Building on Experiment 1, we designed a more rigorous comparison addressing the identified issues.
+
+\textbf{Data.} We use two datasets from HuggingFace:
+\begin{itemize}
+    \item CartPole-v1: 500,000 samples (4 observations, 2 actions)
+    \item LunarLander-v2: 384,000 samples (8 observations, 4 actions)
+\end{itemize}
+Data is shuffled and split 90\%/10\% for training/testing. We test absolute training set sizes of $\{100, 1000, 10000, 100000\}$ samples.
+
+\textbf{Methods.} We compare 9 methods: SGD, and four neuroevolution variants (Simple GA and Simple ES, each with fixed and adaptive mutation), optimizing either cross-entropy (CE) or macro F1 score directly.
+
+\textbf{Results.} Figures~\ref{fig:exp2_cartpole} and \ref{fig:exp2_lunar} show results on CartPole and LunarLander respectively. Key observations:
+
+\begin{enumerate}
+    \item \textbf{GA scales competitively.} Contrary to Experiment 1, the Genetic Algorithm (particularly with adaptive mutation) scales comparably to or better than SGD with dataset size in some configurations.
+
+    \item \textbf{DL scales more smoothly.} SGD shows monotonic improvement with more data, while GA exhibits more erratic behavior, sometimes decreasing in performance with additional data.
+
+    \item \textbf{GA excels in low-data regimes.} At 100--1000 samples, GA often matches or exceeds SGD performance.
+
+    \item \textbf{ES underperforms.} Evolution Strategies consistently underperform Genetic Algorithms across all configurations.
+
+    \item \textbf{Adaptive mutation shows promise but instability.} In low-data regimes, adaptive mutation sometimes causes cross-entropy to diverge substantially while macro F1 score remains competitive, suggesting the optimization finds pockets of parameter space that model behavior well but poorly according to cross-entropy.
+
+    \item \textbf{Direct F1 optimization fails.} Optimizing macro F1 directly (possible for neuroevolution since it doesn't require gradients) did not work well, likely due to the metric being too noisy with only 10 sampling trials.
+\end{enumerate}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{2_dl_vs_ga_es/cartpole_v1.png}
+    \caption{Experiment 2: Fair comparison on CartPole-v1. \textbf{Left}: Cross-entropy loss vs.\ runtime. \textbf{Center}: Macro F1 score vs.\ runtime (line styles indicate dataset size: solid = 100k, dashed = 10k, dot-dashed = 1k, dotted = 100). \textbf{Right}: Final macro F1 error by method and dataset size.}
+    \label{fig:exp2_cartpole}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{2_dl_vs_ga_es/lunarlander_v2.png}
+    \caption{Experiment 2: Fair comparison on LunarLander-v2. Similar trends to CartPole: SGD and GA perform best, ES underperforms, and GA is competitive in low-data regimes.}
+    \label{fig:exp2_lunar}
+\end{figure}
+
+\subsection{Experiment 3: Human Behavior Cloning}
+
+Having compared methods on imitating pre-trained RL agents, we turn to the more challenging task of imitating human behavior.
+
+\textbf{Data Collection.} We recruited 2 subjects (lab members, approved under Qu\'{e}bec ethics requirements) to play four games over multiple days: CartPole, MountainCar, Acrobot, and LunarLander. Subjects were given no instructions about the games or objectives---they were simply asked to play. This resulted in highly varied, exploratory behavior as subjects learned the tasks from scratch.
+
+\textbf{Continual Learning Features.} Human behavior evolves over time: subjects improve across sessions, warm up within sessions, and may forget between sessions. To capture this, we encode temporal information:
+\begin{itemize}
+    \item \textbf{Session}: A new session begins when $>$30 minutes have elapsed since the previous episode
+    \item \textbf{Run}: The episode number within a session
+\end{itemize}
+Both values are normalized to $[-1, 1]$ and optionally provided as additional input features to the network.
+
+\textbf{Methods.} Based on Experiment 2 results, we focus on SGD and Adaptive GA (with cross-entropy fitness), dropping ES due to its consistent underperformance. We run ablations with and without continual learning (CL) information.
+
+\textbf{Evaluation.} We hold out 10\% of episodes within each session for testing. Models are evaluated by running the same number of episodes as the human subject with identical random seeds, enabling direct comparison of returns. We compute the percentage difference from human performance: $(r_\text{model} - r_\text{human}) / |r_\text{human}| \times 100\%$.
+
+\textbf{Results.} Figure~\ref{fig:exp3} shows representative results. Key findings:
+
+\begin{enumerate}
+    \item \textbf{Much harder than RL agent cloning.} Maximum F1 scores reach only $\sim$0.63, compared to $>$0.95 when imitating RL agents. Human behavior is more complex and variable.
+
+    \item \textbf{Unclear benefit from CL information.} Adding session/run features does not consistently improve performance. In some environments, it helps; in others, it hurts or has no effect.
+
+    \item \textbf{SGD generally performs best.} Across environments and subjects, SGD-based methods tend to achieve lower error, though the gap is smaller than in Experiments 1--2.
+
+    \item \textbf{Gap doesn't close during optimization.} Unlike with RL agents, the percentage difference from human behavior does not consistently decrease during training, suggesting fundamental limitations in the models' ability to capture human behavioral patterns.
+\end{enumerate}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/cl_impact_cartpole.png}
+        \caption{CartPole}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/cl_impact_lunarlander.png}
+        \caption{LunarLander}
+    \end{subfigure}
+    \caption{Experiment 3: Impact of continual learning (CL) information on human behavior cloning. Bars show percentage difference from human performance (0\% = perfect match). Blue bars use CL features (session/run), red bars do not. The effect of CL information is inconsistent across methods and environments.}
+    \label{fig:exp3}
+\end{figure}
+
+\section{Conclusion}
+
+We investigated whether neuroevolution can outperform Deep Learning for behavior cloning tasks. Through three experiments, we found:
+
+\begin{enumerate}
+    \item \textbf{Experimental design matters.} Our initial auto-generated experiment (Experiment 1) contained flaws that favored Deep Learning. Careful experimental controls (Experiment 2) revealed that Genetic Algorithms can be competitive with, and sometimes outperform, SGD.
+
+    \item \textbf{GA excels in low-data regimes.} When training data is scarce (100--1000 samples), Genetic Algorithms often match or exceed Deep Learning performance.
+
+    \item \textbf{DL scales more reliably.} Deep Learning shows smoother, more predictable scaling behavior---more data consistently yields better performance. Neuroevolution is more erratic.
+
+    \item \textbf{Human behavior is hard.} Imitating human behavior proved significantly more challenging than imitating pre-trained RL policies, with neither method achieving strong performance.
+\end{enumerate}
+
+\textbf{Limitations.} Our study has several limitations: (1) we focused on small, low-dimensional tasks; (2) we used simple two-layer MLPs without recurrence or attention; (3) we had only 2 human subjects; (4) we did not explore hybrid approaches combining Deep Learning and neuroevolution.
+
+\textbf{Future Work.} Promising directions include: (1) scaling to higher-dimensional tasks; (2) using recurrent architectures to capture temporal dependencies in human behavior; (3) collecting data from more human subjects with diverse play styles; (4) exploring hybrid methods that combine gradient-based optimization with evolutionary exploration.
+
+\section*{Acknowledgments}
+
+This work was conducted as part of the IFT 6167 course at Universit\'{e} de Montr\'{e}al. We thank the course instructors for guidance and feedback. The human data collection was approved under Qu\'{e}bec research ethics requirements.
+
+\bibliographystyle{plainnat}
+\begin{thebibliography}{10}
+
+\bibitem[Djir\'{e} et al.(2025)]{djire2025memorization}
+Djir\'{e}, M., et al.
+\newblock Memorization or interpolation? Detecting LLM memorization through input perturbation analysis.
+\newblock \emph{arXiv preprint}, 2025.
+
+\bibitem[Gavenski(2024)]{gavenski2024cartpole}
+Gavenski, N.
+\newblock CartPole-v1 behavior cloning dataset.
+\newblock HuggingFace Datasets, 2024.
+\newblock URL \url{https://huggingface.co/datasets/NathanGavenski/CartPole-v1}.
+
+\bibitem[Kingma \& Ba(2014)]{kingma2014adam}
+Kingma, D.~P. and Ba, J.
+\newblock Adam: A method for stochastic optimization.
+\newblock \emph{arXiv preprint arXiv:1412.6980}, 2014.
+
+\bibitem[Kumar et al.(2025)]{kumar2025representation}
+Kumar, A., et al.
+\newblock Questioning representational optimism in deep learning: The fractured entangled representation hypothesis.
+\newblock \emph{arXiv preprint}, 2025.
+
+\bibitem[LeCun et al.(2015)]{lecun2015deep}
+LeCun, Y., Bengio, Y., and Hinton, G.
+\newblock Deep learning.
+\newblock \emph{Nature}, 521(7553):436--444, 2015.
+
+\bibitem[Li et al.(2024)]{li2024causal}
+Li, Z., et al.
+\newblock A survey of deep causal models and their industrial applications.
+\newblock \emph{arXiv preprint}, 2024.
+
+\bibitem[Towers et al.(2024)]{towers2024gymnasium}
+Towers, M., et al.
+\newblock Gymnasium: A standard interface for reinforcement learning environments.
+\newblock \emph{arXiv preprint arXiv:2407.17032}, 2024.
+
+\end{thebibliography}
+
+\newpage
+\appendix
+
+\section{Additional Experiment 3 Results}
+
+\subsection{Continual Learning Impact Across All Environments}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/cl_impact_acrobot.png}
+        \caption{Acrobot}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/cl_impact_mountaincar.png}
+        \caption{MountainCar}
+    \end{subfigure}
+    \caption{CL impact on remaining environments. Results are similarly inconsistent regarding the benefit of continual learning information.}
+    \label{fig:exp3_cl_extra}
+\end{figure}
+
+\subsection{Training Progress}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/loss_progress_cartpole.png}
+        \caption{CartPole}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/loss_progress_lunarlander.png}
+        \caption{LunarLander}
+    \end{subfigure}
+    \caption{Training and test cross-entropy loss over optimization. SGD-based methods sometimes show divergent cross-entropy while maintaining competitive F1 scores.}
+    \label{fig:exp3_loss}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/loss_progress_acrobot.png}
+        \caption{Acrobot}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/loss_progress_mountaincar.png}
+        \caption{MountainCar}
+    \end{subfigure}
+    \caption{Loss progress on remaining environments.}
+    \label{fig:exp3_loss_extra}
+\end{figure}
+
+\subsection{Behavioral Progress}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/behav_progress_cartpole.png}
+        \caption{CartPole}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/behav_progress_lunarlander.png}
+        \caption{LunarLander}
+    \end{subfigure}
+    \caption{Percentage difference from human behavior over training. Unlike with RL agents, the gap to human performance often fails to close, suggesting limitations in the models' ability to capture human behavioral complexity.}
+    \label{fig:exp3_behav}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/behav_progress_acrobot.png}
+        \caption{Acrobot}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{3_cl_info_dl_vs_ga/plots/behav_progress_mountaincar.png}
+        \caption{MountainCar}
+    \end{subfigure}
+    \caption{Behavioral progress on remaining environments.}
+    \label{fig:exp3_behav_extra}
+\end{figure}
+
+\end{document}
