@@ -1,7 +1,30 @@
+- [Introduction](#introduction)
+	- [Premise](#premise)
+	- [Strategy](#strategy)
+- [Hypothesis Core](#hypothesis-core)
+	- [Current Paradigm](#current-paradigm)
+	- [Hypothesized Limitation](#hypothesized-limitation)
+	- [Proposed Remediation](#proposed-remediation)
+		- [Evolutionary Algorithms](#evolutionary-algorithms)
+		- [Drawback \& Remediation](#drawback--remediation)
+- [Specification Sheet](#specification-sheet)
+	- [Challenge Overview](#challenge-overview)
+		- [Data](#data)
+	- [Formulation](#formulation)
+	- [Overview](#overview)
+	- [Neural Networks](#neural-networks)
+		- [Architecture Overview](#architecture-overview)
+		- [Perturbation](#perturbation)
+- [Agent roles](#agent-roles)
+		- [Generational inheritance](#generational-inheritance)
+
+
 # Introduction
 ## Premise
 This research codebase is an attempt to surface novel results arising from the interplay of hypotheses described below.
 ## Strategy
+We provide both a complete specification sheet of the envisioned approach, plus a path of implementation and experimentation
+
 Ideally, each of these hypotheses would be examined carefully, both independently and in incremental relation to the others, before undertaking such a venture.
 
 However, we are constrained by time and resources. We are therefore taking a measured “leap of faith”: placing our trust in a combination of intermediary peer-reviewed findings and many years of conceptual experimentation.
@@ -29,13 +52,37 @@ This hypothesis is rooted in the real-world observation that creativity often em
 Our best bet for executing this vision is evolutionary algorithms.
 
 In this paradigm, data is relegated to a regularizing role, while the representation space is perturbed through random search.
-### Downside & Remediation
-A key downside of evolutionary algorithms is that data influences representation-space formation only indirectly. As a result, information originating from the data distribution is incorporated into the representation space more slowly, less efficiently, and with greater noise than in gradient-based optimization.
+### Drawback & Remediation
+A key practical drawback of evolutionary algorithms is that data influences representation-space formation only indirectly. As a result, information originating from the data distribution is incorporated into the representation space more slowly, less efficiently, and with greater noise than in gradient-based optimization.
 
 Practically, this suggests that we should first extract as much signal as possible using gradient-based methods, reserving evolutionary search for the kinds of exploration that gradients are poorly suited to perform.
 # Specification Sheet
 ## Challenge Overview
 The challenge is to imitate human behaviour, using both gradient-based methods and an evolutionary algorithm, at a higher level of fidelity than gradient-based methods alone are able to.
+
+### Data
+
+We make use of the following data setups, that are incrementally better fits to the goal of imitating human behaviour:
+
+Environments:
+
+Control tasks with <10 input values (e.g. position, velocity), <10 output values (e.g. actuator pressure)
+Retro video games with ~2000 input values (RAM indices), ~10 output values (e.g. up, down, jump)
+Retro video games with millions of input values (image stream), ~10 output values (e.g. up, down, jump)
+
+For each of these environments we have human subject behaviour data. In all settings, this data is not stationary since the subjects’ behaviour evolves with experience. For the retro video games, we also have fMRI neuroimaging data of the subjects that corresponds to the collected behaviour data.
+
+
+
+In each environment, we aim to create models that are able to accurately model the complete behaviour of our human subjects, meaning not only their behaviour at a particular skill level but also the way their behaviour evolves with experience. However, for the sake of troubleshooting, we ought to experiment our way up increasingly fitting behaviour, namely:
+
+
+Fixed naive behaviour policy
+Repeats a single action
+Alternates between actions following a given pattern
+Pre-trained capable RL agent policy
+Subject “stable” behaviour (meaning we would need to find a particular time slice where behaviour statistics are “stable”)
+Full subject behaviour
 ## Formulation
 For each task,
 ## Overview
@@ -44,6 +91,25 @@ The proposed evolutionary algorithm is a genetic algorithm that maintains a popu
 Each agent performs three distinct roles: generator, discriminator and mutator.
 ## Neural Networks
 Each agent evolves its own neural network.
+The neural network is made up of nodes and connections.
+
+### Architecture Overview
+
+The networks consist of three types of nodes:
+
+Input nodes: Non-parametric nodes that receive external input signals.
+   One input node per observation dimension.
+
+2. **Hidden nodes**: Parametric nodes with learnable connections. Each hidden
+   node has at most MAX_INCOMING_CONNECTIONS (3) incoming connections with
+   associated weights. Outputs are computed as: standardize(weights · inputs).
+
+3. **Output nodes**: Same as hidden nodes, but their outputs are the network's
+   final predictions. One output node per action dimension.
+
+Input nodes simply output the input values.
+Output nodes output values back out of the network.
+Hidden nodes.
 
 
 
@@ -89,7 +155,7 @@ they simply sum the outputs of each neuron that they input, feed it through a pe
 
 Each neuron computes a sum of all 
 
-X Generational inheritance
+### Generational inheritance
 
 Generational inheritance transfers genotype, final environment state, final memory state, and cumulative lineage fitness from selected parents to offspring.
 
