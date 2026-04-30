@@ -1,63 +1,52 @@
-- [Introduction](#introduction)
-	- [Premise](#premise)
-	- [Strategy](#strategy)
-- [Hypothesis Core](#hypothesis-core)
-	- [Current Paradigm](#current-paradigm)
-	- [Hypothesized Limitation](#hypothesized-limitation)
-	- [Proposed Remediation](#proposed-remediation)
-		- [Evolutionary Algorithms](#evolutionary-algorithms)
-		- [Drawback \& Remediation](#drawback--remediation)
-- [Specification Sheet](#specification-sheet)
-	- [Challenge Overview](#challenge-overview)
-		- [Data](#data)
-	- [Formulation](#formulation)
-	- [Overview](#overview)
-	- [Neural Networks](#neural-networks)
-		- [Architecture Overview](#architecture-overview)
-		- [Perturbation](#perturbation)
-- [Agent roles](#agent-roles)
-		- [Generational inheritance](#generational-inheritance)
-
-
-# Introduction
+# Overview
 ## Premise
-This research codebase is an attempt to surface novel results arising from the interplay of hypotheses described below.
+We see intelligence as the raw ability to solve problems. In contrast, we see wisdom as the ability to create and leverage high-order information in order to calibrate problem solving.
+
+This repository constitutes our attempt to imbue AI systems with more of what we consider wisdom.
+
+At the present (2026/04) stage, this repository is an attempt at extracting previously unextracted human behaviour characteristics out of human behaviour datasets, through an exotic interplay of computational methods.
 ## Strategy
-We provide both a complete specification sheet of the envisioned approach, plus a path of implementation and experimentation
+### Introduction & Motivation
+Our belief is that, in practice, several conditions –  imitation of human behaviour in its purest possible form, proper calibration of random search conditioned on gradient-based representations, etc (extensive details in later sections) – need to all be met in order for this extraction to start showing signs of success.
 
-Ideally, each of these hypotheses would be examined carefully, both independently and in incremental relation to the others, before undertaking such a venture.
+In order to meet all of these conditions, we believe that a multitude of methods need to be incorporated into a working solution. Several of these methods have, in isolation and in older forms, been scientifically peer-reviewed. However, many of them have not.
 
-However, we are constrained by time and resources. We are therefore taking a measured “leap of faith”: placing our trust in a combination of intermediary peer-reviewed findings and many years of conceptual experimentation.
+Accounting for time constraints, we will be taking the (somewhat) measured “leap of faith” of betting on years of conceptual design and experimentation directed towards this very purpose.
+### Overview
+We provide, later in this document, 1) a specification sheet that contains all necessary components for the implementation of a) the envisioned approach & b) the baselines to compare against; 2) a proposed rough path for experimentation.
 
-We provide a complete specification sheet of the envisioned approach meant to be fed to an AI agent. The AI agent is tasked to implement the approach and run extensive experimentation in order to build the sufficient understanding required to surface the aforementioned envisioned novel results.
-# Hypothesis Core
-## Current Paradigm
-Modern AI systems draw from only a small subset of the broader landscape of computational methods.
+These components are meant to provide a solid framework for a sufficiently capable AI agent to both 1) generate the full apparatus and 2) run extensive incremental experimentation in order to build any of the missing understanding that could be required to successfully combine all of these methods together.
+## Central Hypotheses
+### Modern AI Systems & High-Order Information
+While modern AI systems exhibit increasingly more advanced and efficient problem-solving in a wide range of domains, they appear, to us, limited in their ability to create and understand high-order information such as matters of the human condition, societal dynamics, etc.
 
-For instance, although the space of computational search and optimization methods is vast, today’s dominant AI systems rely heavily on gradient-based optimization.
+While the argument can be made that these systems are vastly different from us, it is also undeniable that they have also been exposed to an amount of information pertaining to these high-order concepts at a scale that no human has ever been, by far.
 
-This suggests that, so far, value has been most readily attainable by focusing on this relatively narrow subset of techniques.
+It thus appears to us that such wisdom is not going to naturally emerge from the current paradigm.
+### The Need For Higher Fidelity Human Behaviour Imitation
+There are no other proven sources of wisdom than life on earth. We thus believe that 
+We thus believe that our best bet at embedding wisdom into computational systems is through the betterment of human
+### Random Search
+#### Current Paradigm & Hypothesized Limitation
+We observe that, over the past ~15 years, AI research has largely focused on exploring a wide range of priors within a gradient-based optimization dominated framework.
 
-However, the research community remains uncertain about the ultimate range of value that current popular research trajectories may yield.
-## Hypothesized Limitation
-Gradient-based optimization is tightly coupled to the data distribution.
+Gradient-based optimization methods are tightly coupled to the data distribution, funneling information from the data directly into the model’s representation space.
+#### Proposed Solution
+Our hypothesis is that, given our non-omniscience, meaningful value remains unextracted when search and optimization are constrained to prior and data space.
 
-Within this paradigm, computational information from the data distribution is funneled directly into a model’s representation space.
+We thus argue for the need to augment the optimization process through the exploration of random space.
 
-Our core hypothesis is that there is untapped value in allowing the search/optimization process to explore beyond the confines of data space.
+Random search is an optimization method that is employed 1) in the absence of a dataset & 2) in the absence of priors necessary to successfully solve a task. 
 
-This hypothesis is rooted in the real-world observation that creativity often emerges from unpopular, unconventional, or otherwise underexplored trajectories.
-## Proposed Remediation
-### Evolutionary Algorithms
-Our best bet for executing this vision is evolutionary algorithms.
+In the presence of data, evolutionary search is a method where the representation space is also perturbed through random search, but where data now plays a regularizing role.
+#### Drawback & Remediation
+A key practical relative drawback of evolutionary search is that the now indirect influence of data onto representation-space results in a slower, less efficient and noisier incorporation of valuable data information than is the case in gradient-based optimization.
 
-In this paradigm, data is relegated to a regularizing role, while the representation space is perturbed through random search.
-### Drawback & Remediation
-A key practical drawback of evolutionary algorithms is that data influences representation-space formation only indirectly. As a result, information originating from the data distribution is incorporated into the representation space more slowly, less efficiently, and with greater noise than in gradient-based optimization.
-
-Practically, this suggests that we should first extract as much signal as possible using gradient-based methods, reserving evolutionary search for the kinds of exploration that gradients are poorly suited to perform.
+We propose to mitigate this drawback by always extracting as much data information as possible using gradient-based methods before operating evolutionary search in the realm of this extracted information.
 # Specification Sheet
 ## Challenge Overview
+We believe that the current necessary milestone XXX
+In order for our research to gain broader community recognition (necessary intermediate step for the continuation of this research direction), we believe that 
 The challenge is to imitate human behaviour, using both gradient-based methods and an evolutionary algorithm, at a higher level of fidelity than gradient-based methods alone are able to.
 
 ### Data
