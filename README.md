@@ -128,7 +128,7 @@ Generational inheritance is straight-forward to implement for the generator role
 
 However it is not so straightforward for the discriminator role, given that an agent’s chile will most likely not encounter the same generator 
 #### Neural networks evolution
-Each agent maintains one dynamic neural network. The network is not a fixed architecture MLP: its topology evolves alongside its numerical parameters. Over generations, evolution can change the number of hidden nodes, the graph wiring pattern, the local connection bias, the expected number of grow/prune mutations, and the number of recurrent-style computation passes used for each input.
+Each agent maintains one dynamic neural network. The network is not a fixed architecture MLP: its topology evolves alongside a small set of developmental parameters. Over generations, evolution can change the number of hidden nodes, the graph wiring pattern, the local connection bias, the expected number of grow/prune mutations, and the number of recurrent-style computation passes used for each input.
 
 The implementation represents every network as a directed graph of nodes. A population of such graphs is then flattened into batched tensors for efficient evaluation, while graph mutation itself remains object-based and sequential.
 
@@ -136,12 +136,12 @@ The implementation represents every network as a directed graph of nodes. A popu
 The network has three node roles:
 
 - Input nodes are non-parametric nodes that receive external observations. There is one input node per observation dimension.
-- Hidden nodes are mutable computational nodes. They can be added or removed by evolution.
+- Hidden nodes are mutable computational nodes. They can be added or removed by evolution. Each hidden node also has a fixed polarity, sampled uniformly at birth from `{-1, +1}`.
 - Output nodes are mutable computational nodes whose standardized values are returned as the network output. There is one output node per action/output dimension.
 
 Input and output nodes are created during initialization and are permanent. Hidden nodes are grown and pruned over evolutionary time. Every node has two identifiers: a mutable identifier, which is its current position in the network and is used for tensor indexing, and an immutable identifier, which is assigned at creation and remains stable so the graph can be cloned and reconstructed after pruning has changed mutable positions.
 
-Connections are represented through incoming-node and outgoing-node lists on each node. Hidden and output nodes may have at most `MAX_INCOMING_CONNECTIONS = 3` incoming connections. Connection weights are stored on the receiving hidden/output node as a fixed-length list of three floats. Unused weight slots are zero-filled. When a connection is removed, later weights are shifted left so active weights remain contiguous.
+Connections are represented through incoming-node and outgoing-node lists on each node. Hidden and output nodes may have at most `MAX_INCOMING_CONNECTIONS = 3` incoming connections. Connections do not have weights, signs, or other continuous parameters: they only specify which node outputs are summed by the receiving node.
 
 The graph maintains synchronized views of nodes by role and connection status:
 
@@ -152,14 +152,14 @@ The graph maintains synchronized views of nodes by role and connection status:
 - `being_pruned`: a temporary recursion guard during cascading pruning.
 
 ##### Node computation and normalization
-Input nodes receive observation values. Hidden and output nodes compute a weighted sum of up to three incoming standardized node values:
+Input nodes receive observation values. Hidden and output nodes compute an unweighted sum of up to three incoming standardized node values:
 
 ```text
-x = sum(input_z_i * weight_i)
+x = sum(input_z_i)
 z = standardize_per_node(x)
 ```
 
-The network does not use node biases or activation functions. Instead, every node has persistent running standardization statistics. Each node stores five values:
+The network does not use connection weights, node biases, or activation functions. Instead, every node has persistent running standardization statistics. Each node stores five values:
 
 - `n`: number of observed raw values.
 - `mean`: running mean.
@@ -168,6 +168,14 @@ The network does not use node biases or activation functions. Instead, every nod
 - `z`: previous standardized output.
 
 Standardization uses Welford's online algorithm. If a value is new and non-zero, the node updates its running statistics and returns the corresponding z-score. If the value is zero or already equal to the previous z-score, it passes through without updating the statistics. A node returns zero until it has at least two samples, so newly created or newly connected structures have a short warmup period before they can emit meaningful standardized signals.
+
+Hidden-node polarity is applied after standardization:
+
+```text
+hidden_output = polarity * z
+```
+
+Output nodes do not have polarity. They return their standardized value directly, which keeps the external meaning of each output dimension stable while allowing inhibitory or contrastive structure to emerge inside the hidden graph.
 
 These normalization statistics are learned network state, not episode-local hidden state. Resetting a network for a new episode therefore does not clear them; clearing them would destroy accumulated calibration.
 
@@ -189,7 +197,7 @@ If several grow mutations happen in one mutation call, they are chained: each ne
 ##### Pruning
 Pruning removes hidden nodes. Input and output nodes are never pruned.
 
-When a hidden node is pruned, the implementation removes its incoming and outgoing connections, removes its weight list by object identity, removes its row from the per-node standardization state, and decrements the mutable identifiers of later nodes so tensor indices stay contiguous. The operation can cascade: if pruning disconnects another hidden node so it has no incoming or no outgoing connections, that hidden node is pruned as well. A temporary `being_pruned` list prevents recursive pruning loops.
+When a hidden node is pruned, the implementation removes its incoming and outgoing connections, removes its row from the per-node standardization state, removes its fixed polarity, and decrements the mutable identifiers of later nodes so tensor indices stay contiguous. The operation can cascade: if pruning disconnects another hidden node so it has no incoming or no outgoing connections, that hidden node is pruned as well. A temporary `being_pruned` list prevents recursive pruning loops.
 
 ##### Mutation
 Each mutation first perturbs evolvable scalar parameters:
@@ -204,9 +212,9 @@ Then the architecture is perturbed. The average grow/prune mutation values are c
 After mutation, the network regenerates computation tensors:
 
 - `in_nodes_indices`: for each output/hidden node, the mutable identifiers of its incoming nodes, padded with `-1`.
-- `weights`: the corresponding tensor of connection weights.
+- `hidden_polarities`: the fixed `-1` or `+1` polarity for each hidden node.
 
-The mutable node order is always output nodes first, then hidden nodes. This order is used consistently by both the weight list and the incoming-node index tensor.
+The mutable node order is always output nodes first, then hidden nodes. This order is used consistently by the incoming-node index tensor and the polarity tensor.
 
 ##### Batched population computation
 Although individual networks have heterogeneous graph topologies, the population is evaluated through a single flattened tensor layout. The population-level forward call accepts an input tensor shaped `[num_nets, num_inputs]` and returns `[num_nets, num_outputs]`.
@@ -218,7 +226,7 @@ Before computation, all network graphs are converted into batched lookup tensors
 - flattened positions of all output nodes;
 - flattened positions of all non-input nodes;
 - a flattened incoming-node lookup table for every mutable node;
-- all mutable-node weights;
+- all hidden-node polarities;
 - a pass mask describing which networks should still update at each recurrent-style pass.
 
 Index `0` in the flattened tensors is reserved as a dummy node that always outputs zero. Empty connection slots are clamped to this dummy index, which lets padded missing inputs participate safely in vectorized gathers.
@@ -231,9 +239,10 @@ The forward pass proceeds as follows:
 3. Standardize the input nodes.
 4. For each network pass:
    a. gather the three inputs for every mutable node;
-   b. compute weighted sums;
-   c. update only the mutable nodes whose network is still active for this pass;
-   d. standardize the updated node values.
+   b. compute unweighted sums;
+   c. standardize the updated node values;
+   d. apply fixed polarity to hidden nodes;
+   e. update only the mutable nodes whose network is still active for this pass.
 5. Gather and reshape output nodes into [num_nets, num_outputs].
 ```
 
@@ -242,7 +251,7 @@ The number of passes is the maximum `num_network_passes_per_input` across the po
 ##### Resampling and cloning
 Selection resamples the population by replacing each network with a clone of a selected parent network. Cloning uses explicit graph serialization and reconstruction rather than generic deep copying, because the graph contains circular references through incoming and outgoing node lists and large evolved graphs can exceed Python's recursion limit.
 
-Serialization stores each node's role, mutable identifier, immutable identifier, weights, incoming immutable identifiers, running standardization state, self-adapting mutation parameters, total nodes grown, and device placement. Reconstruction happens in two passes: first create all nodes, then reconnect incoming edges by immutable identifier.
+Serialization stores each node's role, mutable identifier, immutable identifier, hidden-node polarity where applicable, incoming immutable identifiers, running standardization state, self-adapting mutation parameters, total nodes grown, and device placement. Reconstruction happens in two passes: first create all nodes, then reconnect incoming edges by immutable identifier.
 
 Forward passes update the population's batched running-standardization tensor, so the individual graph objects' standardization tensors are stale during evaluation. Before mutation after a previous forward phase, the batched statistics are synchronized back into each individual network. This sync is necessary before cloning or mutating so offspring inherit the current normalization state.
 
