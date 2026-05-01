@@ -88,7 +88,7 @@ dw
 ##### Introduction
 The proposed evolutionary algorithm is an island-based genetic algorithm.
 
-It maintains a population of a fixed number `pop_size` of agents.
+It maintains a single population of a fixed number `pop_size` of agents.
 There are `num_islands` islands, each composed of the same `island_size` (`pop_size / num_islands`) number of agents.
 
 Each agent has three distinct roles: generator, discriminator and mutator (more details below).
@@ -101,7 +101,7 @@ During the evaluation stage, all agents are quantitatively graded with a fitness
 ##### Selection
 Selection for both the islands and the population is achieved using 50% truncation selection.
 
-This corresponds to ranking agents by fitness score, discarding the bottom 50% of agents and duplicating the top 50% of agents (to put it in illustrated language terms: selected agents become parents, produce two offsprings, and erase themselves).
+This corresponds to ranking agents by fitness score, discarding the bottom 50% of agents and duplicating the top 50% of agents (to put it in illustrated language terms: selected agents become parents, produce two offspring, and erase themselves).
 
 Per-island selection occurs every iteration. Every `island_merge_freq` iterations, the global population is ranked and 50% truncation selection occurs. New islands are then formed using the selected population at random.
 #### Generational inheritance
@@ -128,70 +128,126 @@ Generational inheritance is straight-forward to implement for the generator role
 
 However it is not so straightforward for the discriminator role, given that an agent’s chile will most likely not encounter the same generator 
 #### Neural networks evolution
-Each agent evolves its own neural network.
-The neural network is made up of nodes and connections.
+Each agent maintains one dynamic neural network. The network is not a fixed architecture MLP: its topology evolves alongside its numerical parameters. Over generations, evolution can change the number of hidden nodes, the graph wiring pattern, the local connection bias, the expected number of grow/prune mutations, and the number of recurrent-style computation passes used for each input.
 
-##### Architecture overview
+The implementation represents every network as a directed graph of nodes. A population of such graphs is then flattened into batched tensors for efficient evaluation, while graph mutation itself remains object-based and sequential.
 
-The networks consist of three types of nodes:
+##### Graph representation
+The network has three node roles:
 
-Input nodes: Non-parametric nodes that receive external input signals.
-   One input node per observation dimension.
+- Input nodes are non-parametric nodes that receive external observations. There is one input node per observation dimension.
+- Hidden nodes are mutable computational nodes. They can be added or removed by evolution.
+- Output nodes are mutable computational nodes whose standardized values are returned as the network output. There is one output node per action/output dimension.
 
-2. **Hidden nodes**: Parametric nodes with learnable connections. Each hidden
-   node has at most MAX_INCOMING_CONNECTIONS (3) incoming connections with
-   associated weights. Outputs are computed as: standardize(weights · inputs).
+Input and output nodes are created during initialization and are permanent. Hidden nodes are grown and pruned over evolutionary time. Every node has two identifiers: a mutable identifier, which is its current position in the network and is used for tensor indexing, and an immutable identifier, which is assigned at creation and remains stable so the graph can be cloned and reconstructed after pruning has changed mutable positions.
 
-3. **Output nodes**: Same as hidden nodes, but their outputs are the network's
-   final predictions. One output node per action dimension.
+Connections are represented through incoming-node and outgoing-node lists on each node. Hidden and output nodes may have at most `MAX_INCOMING_CONNECTIONS = 3` incoming connections. Connection weights are stored on the receiving hidden/output node as a fixed-length list of three floats. Unused weight slots are zero-filled. When a connection is removed, later weights are shifted left so active weights remain contiguous.
 
-Input nodes simply output the input values.
-Output nodes output values back out of the network.
-Hidden nodes.
+The graph maintains synchronized views of nodes by role and connection status:
 
+- `all`: every node in mutable-index order.
+- `input`, `hidden`, `output`: nodes grouped by role.
+- `receiving`: nodes with incoming connections, repeated once per incoming connection.
+- `emitting`: nodes with outgoing connections, repeated once per outgoing connection.
+- `being_pruned`: a temporary recursion guard during cascading pruning.
 
+##### Node computation and normalization
+Input nodes receive observation values. Hidden and output nodes compute a weighted sum of up to three incoming standardized node values:
 
-The algorithm runs an infinite amount of iterations. The population at a given iteration is called a generation. Within an iteration, three stages are run sequentially: perturbation, evaluation and selection.
+```text
+x = sum(input_z_i * weight_i)
+z = standardize_per_node(x)
+```
 
+The network does not use node biases or activation functions. Instead, every node has persistent running standardization statistics. Each node stores five values:
 
+- `n`: number of observed raw values.
+- `mean`: running mean.
+- `m2`: running sum of squared deviations.
+- `x`: previous raw value.
+- `z`: previous standardized output.
 
-### Perturbation
+Standardization uses Welford's online algorithm. If a value is new and non-zero, the node updates its running statistics and returns the corresponding z-score. If the value is zero or already equal to the previous z-score, it passes through without updating the statistics. A node returns zero until it has at least two samples, so newly created or newly connected structures have a short warmup period before they can emit meaningful standardized signals.
 
+These normalization statistics are learned network state, not episode-local hidden state. Resetting a network for a new episode therefore does not clear them; clearing them would destroy accumulated calibration.
 
- called generations (G). Within a single 
- composed of three stages:
-- perturbation
-- evaluation
-- selection
+##### Growth
+Network initialization creates all input nodes and all output nodes. After initialization, growth creates hidden nodes.
 
-During the perturbation stage, 
+When a hidden node is grown, three connections are created:
 
- with 50% truncation selection, meaning that the top 50% of agents with the highest fitness scores are selected and duplicated over
-# Agent roles
+- `in_node_1 -> new_node`
+- `in_node_2 -> new_node`
+- `new_node -> out_node_1`
 
-While we only evolve a single population, agents in the population each get to play 3 roles: generator, discriminator and mutator.
+The sampling procedure first tries to connect unused parts of the graph. For the first incoming connection, it prioritizes input nodes that do not yet emit to anything. For the outgoing connection, it prioritizes output nodes that do not yet receive from anything. This encourages the early network to become connected across all inputs and outputs before mutation spends capacity on denser internal structure.
 
-Each agent has a single network model. Their network has an output space including the output space (meaning that when generating, an agent has access to it discrimination output and vice versa)
+When there are multiple candidate nodes, sampling is biased toward graph-local structure. The sampler expands outward by graph distance from a reference node and accepts candidates at each distance with probability `local_connectivity_probability`. Higher values encourage modular local wiring; lower values allow more global random wiring.
 
-X Mutator role
+If several grow mutations happen in one mutation call, they are chained: each newly created hidden node is reused as the starting input node for the next growth operation. This makes multi-growth mutations form connected structures instead of isolated fragments.
 
-In addition to their generator and discriminator roles, agents also ought to mutate themselves.
-This operation is independent of the random mutations that already occur.
+##### Pruning
+Pruning removes hidden nodes. Input and output nodes are never pruned.
 
+When a hidden node is pruned, the implementation removes its incoming and outgoing connections, removes its weight list by object identity, removes its row from the per-node standardization state, and decrements the mutable identifiers of later nodes so tensor indices stay contiguous. The operation can cascade: if pruning disconnects another hidden node so it has no incoming or no outgoing connections, that hidden node is pruned as well. A temporary `being_pruned` list prevents recursive pruning loops.
 
-Agents are now also able to mutate themselves. In order to do so, they input from network
+##### Mutation
+Each mutation first perturbs evolvable scalar parameters:
 
+- `avg_num_grow_mutations` is multiplied by `1 + 0.01 * randn`.
+- `avg_num_prune_mutations` is multiplied by `1 + 0.01 * randn`.
+- `local_connectivity_probability` receives additive `0.01 * randn` noise and is clamped to `[0, 1]`.
+- `num_network_passes_per_input` decreases by one with probability 1/100 when above one, and increases by one with probability 1/100.
 
-X Neural networks of dynamic complexity
+Then the architecture is perturbed. The average grow/prune mutation values are converted into integer mutation counts stochastically: the integer part is always used, and the fractional part determines the probability of adding one more mutation. Pruning is applied first, growth second.
 
+After mutation, the network regenerates computation tensors:
 
+- `in_nodes_indices`: for each output/hidden node, the mutable identifiers of its incoming nodes, padded with `-1`.
+- `weights`: the corresponding tensor of connection weights.
 
-X All representational capacity in the architecture
+The mutable node order is always output nodes first, then hidden nodes. This order is used consistently by both the weight list and the incoming-node index tensor.
 
-Network connections do not have weights. Instead, 
-they simply sum the outputs of each neuron that they input, feed it through a per-neuron running standardization and output that transformed signal
+##### Batched population computation
+Although individual networks have heterogeneous graph topologies, the population is evaluated through a single flattened tensor layout. The population-level forward call accepts an input tensor shaped `[num_nets, num_inputs]` and returns `[num_nets, num_outputs]`.
 
-Each neuron computes a sum of all 
+Before computation, all network graphs are converted into batched lookup tensors:
+
+- input-node start indices for each network in the flattened node tensor;
+- flattened positions of all input nodes;
+- flattened positions of all output nodes;
+- flattened positions of all non-input nodes;
+- a flattened incoming-node lookup table for every mutable node;
+- all mutable-node weights;
+- a pass mask describing which networks should still update at each recurrent-style pass.
+
+Index `0` in the flattened tensors is reserved as a dummy node that always outputs zero. Empty connection slots are clamped to this dummy index, which lets padded missing inputs participate safely in vectorized gathers.
+
+The forward pass proceeds as follows:
+
+```text
+1. Start from the previous standardized node outputs.
+2. Insert the current observations into the flattened input-node positions.
+3. Standardize the input nodes.
+4. For each network pass:
+   a. gather the three inputs for every mutable node;
+   b. compute weighted sums;
+   c. update only the mutable nodes whose network is still active for this pass;
+   d. standardize the updated node values.
+5. Gather and reshape output nodes into [num_nets, num_outputs].
+```
+
+The number of passes is the maximum `num_network_passes_per_input` across the population. Networks with fewer passes are masked out after their own pass count is reached. This gives networks an evolvable recurrent-like depth while preserving a single batched computation path.
+
+##### Resampling and cloning
+Selection resamples the population by replacing each network with a clone of a selected parent network. Cloning uses explicit graph serialization and reconstruction rather than generic deep copying, because the graph contains circular references through incoming and outgoing node lists and large evolved graphs can exceed Python's recursion limit.
+
+Serialization stores each node's role, mutable identifier, immutable identifier, weights, incoming immutable identifiers, running standardization state, self-adapting mutation parameters, total nodes grown, and device placement. Reconstruction happens in two passes: first create all nodes, then reconnect incoming edges by immutable identifier.
+
+Forward passes update the population's batched running-standardization tensor, so the individual graph objects' standardization tensors are stale during evaluation. Before mutation after a previous forward phase, the batched statistics are synchronized back into each individual network. This sync is necessary before cloning or mutating so offspring inherit the current normalization state.
+
+##### Performance notes
+Mutation is performed sequentially across networks, then tensor data is cached for fast batched preparation. Multiprocessing was tested and rejected: individual network mutations were too cheap relative to inter-process communication and serialization overhead. The current approach keeps Python graph mutation simple and uses tensor operations for the expensive forward computation.
 
 ### Generational inheritance
 
