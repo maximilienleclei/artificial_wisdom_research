@@ -132,57 +132,53 @@ At the present stage (2026/05), our research is geared towards attempting to fir
 
 # Specifications
 
-## Data
-
-We make use of the following data setups, that are incrementally better fits to the goal of imitating human behaviour:
-
-Environments:
-
-Control tasks with <10 input values (e.g. position, velocity), <10 output values (e.g. actuator pressure)
-Retro video games with ~2000 input values (RAM indices), ~10 output values (e.g. up, down, jump)
-Retro video games with millions of input values (image stream), ~10 output values (e.g. up, down, jump)
-
-For each of these environments we have human subject behaviour data. In all settings, this data is not stationary since the subjects’ behaviour evolves with experience. For the retro video games, we also have fMRI neuroimaging data of the subjects that corresponds to the collected behaviour data.
-
-
-In each environment, we aim to create models that are able to accurately model the complete behaviour of our human subjects, meaning not only their behaviour at a particular skill level but also the way their behaviour evolves with experience. However, for the sake of troubleshooting, we ought to experiment our way up increasingly fitting behaviour, namely:
-
-
-Fixed naive behaviour policy
-Repeats a single action
-Alternates between actions following a given pattern
-Pre-trained capable RL agent policy
-Subject “stable” behaviour (meaning we would need to find a particular time slice where behaviour statistics are “stable”)
-Full subject behaviour
-
 ## Methods
 
-### Standard deep learning
-
-Dw
-
-### Neuroevolution
+### Evolutionary algorithm
 
 #### Core design
 
-##### Introduction
+##### Overview
 
-The proposed evolutionary algorithm is an island-based genetic algorithm.
+###### Genetic algorithm
+
+There are many types of evolutionary search algorithms.
+
+We choose to operate a genetic algorithm in order to explore random space deeper than is possible with evolutionary strategies, the current most popular evolutionary search method that runs per-iteration population-wide recombination.
+
 
 It maintains a single population of a fixed number `pop_size` of agents.
-There are `num_islands` islands, each composed of the same `island_size` (`pop_size / num_islands`) number of agents.
 
 Each agent has three distinct roles: generator, discriminator and mutator (more details below).
 
-The algorithm loops every iteration through three stages: perturbation, evaluation and selection.
+
+The algorithm loops every iteration through three classical stages: mutation, evaluation and selection.
 The generation of agents at iteration `<iter>` is `gen <iter>`.
 
-During the perturbation stage, all agents are randomly mutated (no crossovers).
-During the evaluation stage, all agents are quantitatively graded with a fitness on the given task.
+###### Islands
 
-##### Selection
+We also choose to make the genetic algorithm island-based. We explain our reasoning in the `Adversarial imitation` section.
+
+There are `num_islands` islands, each composed of the same `island_size` (`pop_size / num_islands`) number of agents.
+
+###### Mutation stage
+
+During the mutation stage, all agents are randomly perturbed.
+
+We do not implement crossovers. Our perspective is that while there are many benefits to crossovers in isolated practical situations, they are very hard to set up properly in the more complex situation that we operate in.
+
+Finally, as per their mutator role, all agents mutate themselves (we detail this operation in the `Mutator role` section).
+
+
+###### Evaluation stage
+
+During the evaluation stage, all agents behave in a virtual environment and are quantitatively graded with a fitness score.
+
+###### Selection stage
 
 Selection for both the islands and the population is achieved using 50% truncation selection.
+
+We choose 
 
 This corresponds to ranking agents by fitness score, discarding the bottom 50% of agents and duplicating the top 50% of agents (to put it in illustrated language terms: selected agents become parents, produce two offspring, and erase themselves).
 
@@ -190,15 +186,15 @@ Per-island selection occurs every iteration. Every `island_merge_freq` iteration
 
 #### Generational inheritance
 
-Generational inheritance is a key component to make evolutionary search more efficient with respect to evaluation.
+Generational inheritance is meant to make evolutionary search more efficient with respect to evaluation.
+It does so by having agents run on portions of a task instead of full tasks.
 
-Its main purpose is to enable structure such that we can evolve over a desired evaluation time frame, no more no less.
 
-In that framework, agents that are selected transfer to their two offspring not only their genotype but also their final environment state, final memory state, and cumulative lineage fitness scores.
+Agents that are selected transfer to their two offspring not only their genotype, but also their final environment state, final memory state, and cumulative lineage fitness scores.
 
-During its own evaluation stage, the offspring thus slots in its parent’s memory state and resumes from its parent’s environment state. Its fitness score becomes the sum of the lineage fitness score and its own. The selection stage then accounts for that sum rather than the individual’s fitness.
+During its own evaluation stage, the offspring thus loads and resumes from its parent’s memory state and environment state. Its fitness score becomes the sum of its lineage fitness score plus its own. The selection stage thus accounts for that sum rather than the individual’s fitness.
 
-The child is evaluated for `num_states` states, accumulating local reward. If termination occurs before E is exhausted under fixed E=k, reset the environment and use the remaining actions; otherwise descendants of terminal agents start from a fresh environment. After evaluation, store the child’s final env state and memory state, and set fitness = inherited fitness + local reward. Selection is based on this cumulative fitness.
+Agents are evaluated for `num_states` states. If the virtual environment terminates before `num_states` take place, we reset the environment and memory (but not the fitness score) and run the remaining states.
 
 #### Adversarial imitation
 
@@ -230,7 +226,13 @@ While network evolution is performed per-network, computation is batched so it c
 The ‘3 x num_nodes’ 
 
 
-#### Neural networks evolution
+#### Neural networks
+
+Each agent maintains one neural network.
+
+Each network is a directed graph of nodes.
+
+
 
 Each network is represented as a directed graph of nodes. The population is flattened into batched tensors for evaluation, while mutation remains graph-based and sequential.
 
@@ -368,27 +370,32 @@ Forward passes update the population's batched running-standardization tensor, s
 
 Mutation is performed sequentially across networks, then tensor data is cached for fast batched preparation. Multiprocessing was rejected because individual mutations were too cheap relative to inter-process communication and serialization overhead. The current approach keeps graph mutation simple and uses tensor operations for forward computation.
 
-### Generational inheritance
 
 
+## Data
+
+We make use of the following data setups, that are incrementally better fits to the goal of imitating human behaviour:
+
+Environments:
+
+Control tasks with <10 input values (e.g. position, velocity), <10 output values (e.g. actuator pressure)
+Retro video games with ~2000 input values (RAM indices), ~10 output values (e.g. up, down, jump)
+Retro video games with millions of input values (image stream), ~10 output values (e.g. up, down, jump)
+
+For each of these environments we have human subject behaviour data. In all settings, this data is not stationary since the subjects’ behaviour evolves with experience. For the retro video games, we also have fMRI neuroimaging data of the subjects that corresponds to the collected behaviour data.
 
 
-In the context of evolutionary adversarial generation, generator memory is straightforward to 
-
-X Evolved network on top of gradient-based network
-
-Modern AI policy network
-Then have a network evolve akin to a parasite.
-Starts by mapping from the output space back into the output space
-Can start to go fetch from earlier layers after a certain point
+In each environment, we aim to create models that are able to accurately model the complete behaviour of our human subjects, meaning not only their behaviour at a particular skill level but also the way their behaviour evolves with experience. However, for the sake of troubleshooting, we ought to experiment our way up increasingly fitting behaviour, namely:
 
 
-X Objective: show that evolutionary algorithms can extract untapped value on top of gradient-based methods
-
-	X Attempt showing in the context of static policy behaviour imitation, however it is likely
-	that there is too little value left to extract.
-
-	We have a dataset of human 
+Fixed naive behaviour policy
+Repeats a single action
+Alternates between actions following a given pattern
+Pre-trained capable RL agent policy
+Subject “stable” behaviour (meaning we would need to find a particular time slice where behaviour statistics are “stable”)
+Full subject behaviour
 
 ## Experimentation path
+
+
 
