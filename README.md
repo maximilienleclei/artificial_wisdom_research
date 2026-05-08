@@ -4,21 +4,21 @@ It is optimized for both human and AI agent readability.
 
 The tipping point motivation for creating this document was to fully decouple research methodology and experimentation away from a consistent codebase, which has only recently become legitimate.
 
-This document has two main sections: `Overview` and `Specifications`.
+This document has two main sections: `# Overview` and `# Specifications`.
 
-We describe, in the `Overview` section, our high-level understanding and research reasoning so as to contextualize our `Specifications` section.
+We describe, in `# Overview`, our high-level understanding and research reasoning so as to contextualize `# Specifications`.
 
 # Overview
 
-We begin this section by sharing, in `Why artificial sapience?` our current understanding of both sapience and its relation with artificial intelligence.
+We begin this section by sharing, in `## Why artificial sapience?` our current understanding of both sapience and its relation with artificial intelligence.
 
-We then proceed, in `Central hypotheses`, to introducing and motivating several hypotheses that shape the nature of our research direction.
+We then proceed, in `## Central hypotheses`, to introduce and motivate several hypotheses that shape the nature of our research direction.
 
-Finally, in `Research strategy`, we share insights into how we operationalize our research endeavour.
+Finally, in `## Research strategy`, we share insights into how we operationalize our research endeavour.
 
 ## Why artificial sapience?
 
-We motivate, in this sub-section, the value of artificial sapience in our artificial intelligence focused world.
+We motivate, in this sub-section, the value of artificial sapience in contrast to artificial intelligence.
 
 
 ### Sapience
@@ -27,7 +27,7 @@ Intelligence, wisdom and understanding are three advanced concepts that concern 
 
 Just like most high-order concepts, all these concepts have neither universally agreed definitions nor clear boundaries with each other.
 
-To the best of our knowledge, sapience is the term that best englobes the three terms in how they manifest in human beings.
+To the best of our knowledge however, sapience is the term that best englobes the three terms in how they manifest in human beings.
 
 ### Intelligence
 
@@ -35,7 +35,7 @@ Our perspective is that intelligence is proportional to the likelihood of solvin
 
 There is per-problem intelligence: an entity can be very good at solving very specific problems but very bad at solving everything else. In that case, it is narrowly very intelligent.
 
-More broadly valuable however is general intelligence. Human beings for instance are able to solve a wide range of problems.
+More broadly valuable however is general intelligence. Human beings and modern artificial intelligence systems for instance are able to solve a wide range of problems.
 
 ### Sacrificing sapience for the sake of greater intelligence
 
@@ -59,17 +59,17 @@ While modern AI systems exhibit increasingly more advanced and efficient problem
 
 While the argument can be made that these systems are vastly different from us, it is also undeniable that they have also been exposed to an amount of information pertaining to these high-order concepts at a scale that no human has ever been, by far.
 
-It thus appears to us that the wisdom and understanding required to make sense of these categories of information are not going to emerge meaningfully from the present paradigm.
+It thus appears to us that the wisdom and understanding required to make sense of these high-order information categories are not going to emerge meaningfully from the present paradigm.
 
 ### The need for higher fidelity human behaviour imitation
 
 In the pursuit of designing systems that exhibit sapience, it appears to us that one has to position itself with respect to a gradient that spans from pure imitation of existing behaviour all the way to independent discovery.
 
-From our perspective, sapience as it appears in humanity is an advanced product of evolution that sits at the top of an incredibly sophisticated dependency graph. As a result, we believe the chance of success in building sapient systems to drop very sharply for anything that distances itself from pure imitation of existing behaviour.
+From our perspective, sapience as it appears in humanity is an advanced product of evolution that sits at the top of an incredibly sophisticated dependency graph. As a result, we believe the practical chances of success in building sapient systems to drop very sharply as we ever so slightly distance ourselves from pure imitation of existing behaviour.
 
 We thus believe that our best bet at embedding sapience into computational systems is through the betterment of human behaviour imitation modeling.
 
-### Random search to better human behaviour imitation
+### Random search to enhance human behaviour imitation
 
 #### Current AI paradigm
 
@@ -104,7 +104,7 @@ We introduce what we consider to be two of these conditions, and how we think be
 
 Given that, relative to gradient-based methods, data is retrograded from being a direct to an indirect optimization signal, valuable data information now gets assimilated into representation space at a much slower and less efficient pace.
 
-We propose to mitigate this phenomenon by largely building on top of the modern paradigm. In practice, this means first extracting information and rolling out policies with gradient-based methods, and secondly, within that generated realm, operate evolutionary search.
+We propose to mitigate this phenomenon by largely building on top of the modern AI paradigm. In practice, this means first extracting information and training policies with gradient-based methods, and only then, within that generated realm, operate evolutionary search.
 
 ##### Navigating random space
 
@@ -112,7 +112,7 @@ Perturbing representation space using random space is a delicate endeavour. With
 
 We thus need to calibrate our search to satisfy a delicate balance between representation construction and noise application.
 
-In the pursuit of that interest, we give our methods that have any impact on that balance the flexibility to both calibrate their noise application and shield their already constructed representations.
+In the pursuit of that interest, we implement mechanisms throughout our methods in order to 1) calibrate noise application and 2) shield existing representations.
 
 ## Research strategy
 
@@ -121,114 +121,200 @@ We share, in this sub-section, our strategy for operationalizing our research en
 
 ### Motivation
 
-Our belief is that, in practice, several conditions need to all be met in order to reach visible signs of deeper understanding and wisdom: imitation of human behaviour in its complete form, proper calibration of random search conditioned on gradient-based representations, etc.
+Our belief is that, in practice, several conditions need to all be met in order to reach visible signs of sapience: imitation of human behaviour in its most native form, proper calibration of random search conditioned on gradient-based representations, etc.
 
-In order to meet all of these conditions, we believe that a multitude of methods need to be incorporated into a working solution. Several of the methods that we later detail have, in isolation and in older forms, been scientifically peer-reviewed. However, many of them have not.
+In order to meet all of these conditions, we believe that a multitude of novel methods need to be incorporated into a working solution.
 
-In order to account for time constraints, we are taking the (somewhat) measured “leap of faith” of building towards our objective while betting instead on our observed empirical results in addition to years of conceptual experimentation.
+In this attempt of ours, several of the methods that we later detail have, in isolation and in older forms, been scientifically peer-reviewed. However, many of them have not.
+
+In order to account for time constraints, we are taking the (somewhat) measured “leap of faith” of building towards our objective while betting instead on 1) our observed empirical results and 2) years of conceptual experimentation.
 
 ### Outline
 
 We provide, in the upcoming `Specifications` section of this document 1) an appropriately detailed description of all the components envisioned for the implementation of both a) the envisioned approach & b) baselines to compare against; and 2) a proposed rough path for experimentation.
 
-These components are meant to provide a solid framework for a sufficiently capable AI agent to both 1) generate the apparatus and 2) run extensive incremental experimentation in order to build any of the missing understanding that could be required in order to successfully combine all of these methods together.
+These components are meant to provide a solid framework for a sufficiently capable AI agent to both 1) generate the research apparatus and 2) run extensive incremental experimentation in order to build any of the missing understanding that could be required in order to successfully combine all of these methods together.
 
 ### Current objective
 
-At the present stage (2026/05), our research is geared towards attempting to first extract previously unextracted human behaviour characteristics out of human behaviour datasets.
+At the present stage (2026/05), our research is geared towards attempting to first extract previously unextracted human behaviour characteristics out of human behaviour datasets. We begin with the ability to model human behaviour as it progresses through time.
 
 # Specifications
 
-This section is composed of three sub-sections: `Modeling methods`, `Data setup` & `Experimentation path`.
+This section is composed of three sub-sections: `## Modeling methods`, `## Data setup` & `## Experimentation path`.
 
-We specify in each of these sections our complete methodologies and a lot of reasoning behind our design choices.
+We specify in each of these sections our complete methodologies and the reasoning behind each of our design choices.
 
 ## Modeling methods
 
-We detail, in this sub-section, all of our `Evolutionary search` methods and how they concord with modern methods in `Leveraging the gradient-based paradigm`.
+We detail, in this sub-section, all of our `### Evolutionary search` methods and how we make them concord with modern methods in `### Leveraging the gradient-based paradigm`.
 
 
 ### Evolutionary search
 
 We begin by introducing our methods that pertain to evolutionary search.
 
+In `#### Core design`, we detail design decisions that pertain to the core evolutionary search algorithm itself.
+
+In the later sub-sections we detail more specific mechanisms with the following purposes:
+- `#### Adversarial imitation`: open-ended human behaviour imitation
+- `#### Generational inheritance`: increased evaluation-efficiency
+- `#### Neural networks`: flexible representation construction
+- `#### Mutator role`: evolving self-adaptability
+
 
 #### Core design
 
-We begin by introducing 
+There are many types of evolutionary search algorithms that offer a wide-range of trade-offs that suit different contexts.
+
+In our context of evolving neural networks (details in `#### Neural networks`), there are roughly two practically proven classes of methods: genetic algorithms and evolution strategies.
+
+We opt for genetic algorithms.
+
+##### Why not evolution strategies?
+
+Evolution strategies methods build on the idea of population-scale recombination of agents, placing higher recombination weight to better performing agents.
+
+We are of the opinion that recombination of neural networks, in practice, imposes two conditions that we believe too restrictive for our purposes.
+
+###### Network design requirements
 
 
-##### Overview
+Firstly, recombination requires a network format suitable for recombination. While methods like NEAT have shown that dynamic-connectivity networks can be recombined, these methods generally imply a wide range of assumptions and accept practical inefficiencies. In practice, recombination thus requires the use of fixed-connectivity networks, so as to operate in real value parameter (weight and bias) space. 
 
-There are many types of evolutionary search algorithms.
+While general intelligence has emerged from human-made fixed connectivity networks, it has thus far only emerged in a pure gradient-based optimization context.
 
+It is thus still unclear, given the many disconnects between gradient-based optimization and evolutionary search, how much value can be leveraged from fixed-size networks.
 
-Our context is that of evolving neural networks (details in the `Neuroevolution` sub-section below).
+We further explain our reasoning for the use of dynamic-connectivity networks in `#### Neural networks`.
 
-In that context, there are roughly two practically proven classes of methods: genetic algorithms and evolution strategies.
+###### Representation incompatibility
 
-Evolution strategies build on the idea of recombining agents, placing higher recombination weight to better performing agents.
-
-We are of the opinion that recombination of neural networks, in practice, imposes two conditions that we believe too harmful for our purposes.
-
-Firstly, recombination requires a network format suitable for recombination. In practice, this operation is typically applied to fixed connectivity networks in weight and bias space.
-
-However, we believe fixed connectivity networks to be too prohibitive for our purposes.
-
-The human behaviour that we attempt to imitate leverage very intricate network architectures.
-
-While intelligence has been shown to emerge from human-made static architectures, sapience has not.
 
 Secondly, we believe recombination to be too opinionated of a design decision.
 
-It places its trust in that more valuable information will be gained than lost, and that the information that is lost is worth losing. While the first point has been shown to be true in practice, the second has not, for it has not been deemed an immediate concern by that research community.
+Recombination assumes that the gains from combining partial solutions outweigh the disruption caused by merging incompatible representations. While this tradeoff often works empirically, the degree to which useful information is destroyed remains an active research concern.
 
-We thus opt for a crossover-free genetic algorithm.
+##### Genetic algorithm
 
+Following our line of reasoning about recombinations, we opt to make our genetic algorithm crossover-free. However, we detail in `#### Mutator role` how we create a channel for agents to observe and integrate other agents’ valuable representations, thus not completely forgoing recombination.
+
+—
 
 Our population maintains a single population of a fixed number `pop_size` of agents.
 
-Each agent has three distinct roles: generator, discriminator and mutator (more details below).
+Each agent has three distinct roles: generator, discriminator and mutator (more details in `#### Adversarial imitation` and `#### Mutator role`).
 
 
 The algorithm loops every iteration through three standard stages: mutation, evaluation and selection.
 
 The generation of agents at iteration `<iter>` is `gen <iter>`.
 
-###### Islands
+##### Islands
 
-We also choose to make the genetic algorithm island-based. We explain our reasoning in the `Adversarial imitation` section.
+We also choose to make the genetic algorithm island-based. We explain our reasoning in `#### Adversarial imitation`.
 
 There are `num_islands` islands, each composed of the same `island_size` (`pop_size / num_islands`) number of agents.
 
-###### Mutation stage
+##### Mutation stage
 
-During the mutation stage, most agents (not all agents, see the upcoming `Selection stage` sub-section) are randomly perturbed.
-
-We do not implement crossovers. Our perspective is that while there are many benefits to crossovers in isolated practical situations, they are very hard to set up properly in the more complex situation that we operate in.
+During the mutation stage, all but a few agents (see `###### Elitism`) are randomly perturbed independently.
 
 Finally, as per their mutator role, all agents mutate themselves (we detail this operation in the `Mutator role` section).
 
+##### Evaluation stage
 
-###### Evaluation stage
+During the evaluation stage, all agents behave in a virtual environment and are assigned a quantitative personal fitness score.
 
-During the evaluation stage, all agents behave in a virtual environment and are quantitatively graded with a fitness score.
+The mechanics that decide the value of that personal fitness score are detailed in `#### Adversarial imitation`.
 
-###### Selection stage
+* In order to better understand the notion of “personal fitness score”, we quickly foreshadow here the concept of “lineage fitness score”, with an agent fitness score being the sum of both its personal and lineage fitness score (details in `#### Generational inheritance`).
 
-Selection for both the islands and the population is achieved using 50% truncation selection.
+##### Selection stage
 
-This corresponds to ranking agents by fitness score, discarding the bottom 50% of agents and duplicating the top 50% of agents (to put it in illustrated language terms: selected agents become parents, produce two offspring, and erase themselves).
+We now introduce our selection stage heuristics.
 
-Per-island selection occurs every iteration. Every `island_merge_freq` iterations, the global population is ranked and 50% truncation selection occurs. New islands are then formed using the selected population at random.
 
-As a result of per-island selection, every island has one agent with the highest fitness score. Its first of two offspring is not to be mutated during its upcoming mutation stage.
+###### Truncation
 
-As a result of the population-wide selection that occurs every `island_merge_freq` iterations, only 
+Selection for both the islands and the population is achieved using a classical truncation selection with a rate of 50%.
 
-Finally, we choose 50% over smaller values to simply widen the search space as much as possible.
 
-Since all selected parents produce two offspring each, we do not give preferential treatment to top parents. Our reasoning is two-fold: 1) if top parents came across relatively more valuable representations, their children are more likely to themselves become parents relative to other children with lower performing parents & 2) generational inheritance (described in the next sub-section).
+This corresponds to ranking agents by fitness score, discarding the bottom 50% of agents and duplicating the top 50% of agents (to put it in illustrated language terms: selected agents become parents, produce two offspring identical to themselves, and then erase themselves).
+
+###### Why 50%?
+
+50% is the largest truncation selection percentage wherein we do not need heuristics to decide how many offspring a parent produces (for instance, 60% needs a heuristic to decide which parents produce how many of the remaining 40% of agents).
+
+Smaller heuristic-free truncation selection percentages like 25%, 12.5% choose to increasingly diminish random space exploration breadth in order to increasingly invest resources in the best current solutions.
+
+We choose 50% because 1) we believe the optimization dynamics of our `#### Adversarial imitation` context to be too intricate to confidently make the type of trade-off described above & 2) because we do not see value in further optimizing the number of offspring per parent: our reasoning is that if top parents came across relatively more valuable representations, their children are more likely to themselves become parents relative to other children with lower performing parents.
+
+###### Interaction between islands and the global population
+
+Per-island 50% truncation selection occurs every iteration except every `island_merge_freq` iterations.
+
+Every `island_merge_freq` iterations, the global population is ranked and a global 50% truncation selection occurs instead.
+
+Islands are then reformed by dispatching the global population’s new offsprings randomly across the `num_islands` islands.
+
+
+###### Elitism
+
+Following the evaluation stage, every island has an elite: the agent with the highest fitness score on the island.
+
+The elite is marked to have one of its two offspring not be mutated during its next iteration mutation stage.
+
+This mark remains applied for either per-island selection and population-wide selection (though population-wide selection could see a given island’s elite agent discarded due to not being ranked in the top 50% fitness scores of the global population).
+
+###### Why elitism?
+
+First of all we choose to implement some form of elitism, over no form of elitism, in order to provide some shielding against XXX.
+
+However we decide not to implement a heavier form of elitism so as to not considerably slow-down the search: the representations that we are looking for are very complex and are likely very deep in the search space.
+
+#### Adversarial imitation
+
+We optimize for imitation using an adversarial imitation algorithm
+
+##### Why adversarial imitation?
+
+We choose to operate adversarial imitation rather than other forms of supervised/unsupervised imitation.
+
+Our reasoning is multi-fold:
+
+1) Adversarial imitation is the most open-ended imitation technique in that it maintains at any given time multiple optimization paths: up to the theoretical perfect discriminator / generator, representation formation is only  are only constrained tothe path to new representations is open-ended.
+
+This is in contrast with static optimization paths where representation creation is much more constrained to a given path.
+
+2) The operationalization of adversarial imitation in an evolutionary search context is quite a bit different than it is with gradient-based optimization.
+
+Adversarial imitation in gradient-based optimization appears to have two drawbacks that presently make them second-class citizens to diffusion models: 1) training instability and 2) one-shot generation.
+
+Point 1 is only relevant in the context of gradient-based optimization and point 2 is only relevant in the context of having a fixed inference budget, which we do not (see the `Neural Networks` section).
+
+
+
+As mentioned previously, each agent is both a generator and a discriminator.
+
+Every iteration, each agent is evaluated for both its generation and discrimination performance.
+
+Generation is quite straightforward: the agent simply behaves in the virtual environment.
+
+Discrimination is a bit more involved: the agent observes the behaviour of all other agents on its island.
+
+—
+
+
+We now introduce the method.
+
+
+
+
+##### 
+#### 
+
+Every iteration, 
 
 #### Generational inheritance
 
@@ -248,44 +334,7 @@ This mechanism has an important impact on the selection process, as described in
 
 We see value in this property for the same reasons that occur in the natural world.
 
-#### Adversarial imitation
 
-We optimize for imitation using adversarial evolution.
-
-As mentioned previously, each agent is both a generator and a discriminator.
-
-Every iteration, each agent is evaluated for both its generation and discrimination performance.
-
-Generation is quite straightforward: the agent simply behaves in the virtual environment.
-
-Discrimination is a bit more involved: the agent observes the behaviour of all other agents on its island.
-
-—
-
-We choose to operate adversarial imitation rather than supervised imitation.
-
-Our reasoning is multi-fold:
-
-1) Evolutionary adversarial imitation is quite open-ended up to the theoretical perfect discriminator / generator: new
-opportunities to encode new representations always open up.
-
-This is in contrast with a fixed supervised loss where representation creation is much more constrained to the path of optimization
-
-2) The operationalization of adversarial imitation in an evolutionary search context is quite a bit different than it is with gradient-based optimization.
-
-Adversarial imitation in gradient-based optimization appears to have two drawbacks that presently make them second-class citizens to diffusion models: 1) training instability and 2) one-shot generation.
-
-Point 1 is only relevant in the context of gradient-based optimization and point 2 is only relevant in the context of having a fixed inference budget, which we do not (see the `Neural Networks` section).
-
-We now introduce the method.
-
-
-
-
-##### 
-#### 
-
-Every iteration, 
 
 ##### Application to generational inheritance
 
@@ -361,25 +410,74 @@ The ‘3 x num_nodes’
 
 Each agent maintains one neural network that is a directed graph of nodes.
 
-There is no concept of layers in these networks.
+##### Nodes
+
+The graph has three types of nodes: `input`, `hidden` and `output` nodes.
+
+Nodes can communicate with other nodes through node-to-node directed connections.
+
+Each node (except `input` nodes) maintains a list of `in` nodes: nodes that connect to that given node.
+Each node has up to 3 `in` nodes. We explain the rationale in `##### Execution`.
+
+Each node also maintains a list of `out` nodes`: nodes that the given node connects to.
+
+###### No weights nor biases
+
+Nodes do not assign weights to the values they receive, nor do they apply a bias.
+
+All nodes (including `input` nodes) run an online Welford’s algorith standardization of the sum of their input values using Welford's online algorithm, and output the result of that standardization.
+
+##### Network overview
+
+There are `n` `input` nodes, corresponding to the `n` real values that the network inputs. Input nodes only input their assigned real value input.
+
+
+
+There are `m` `output` nodes, corresponding to the `m` real values that the network outputs.
+
+##### Mutations
+
+###### Grow node
+
+
+####### Sampling nearby nodes
+
+####### Grow connection
+
+###### Prune node
+
+####### Prune connection
+
+###### Perturb parameters
+
+
+
+
+
+XXX
+
+Because
+We believe many of the 
 
 
 ##### Nodes
 
-###### Overview
 
-The graph has three types of nodes: `input`, `hidden` and `output` nodes.
 
-Nodes can communicate through directed connections.
+For the sake of operations described later on, each node has a `mutable uid` and `immutable uid`.
+
+.
+
+One node is thus `emitting` and the other is `receiving`.
+
+
+The `emitting node`
 
 `input` nodes do not have `in_nodes`, whereas `hidden` and `output` nodes can have up to 3 (hard limit).
 All nodes can have an unlimited number of `out_nodes`.
 
-There are `n` `input` nodes, corresponding to the `n` real values that the network inputs. Input nodes thus only input their assigned network input.
 
-Nodes do not assign weights to the values they receive. All nodes (including `input` nodes) run a standardization of the sum of their input values using Welford's online algorithm. They output the result of that standardization.
 
-There are `m` `output` nodes, corresponding to the `m` real values that the network outputs.
 
 —
 
@@ -408,7 +506,13 @@ During the `grow_node` mutation, we begin by selection
 
 #### Mutator role
 
+We now detail how agents are given the opportunity to alter their own connectivity.
 
+
+
+
+###### Indirect recombination
+d
 ### Leveraging the gradient-based paradigm
 
 We now detail how we plan to bring evolutionary search and the modern paradigm together.
@@ -427,7 +531,6 @@ Retro video games with millions of input values (image stream), ~10 output value
 
 For each of these environments we have human subject behaviour data. In all settings, this data is not stationary since the subjects’ behaviour evolves with experience. For the retro video games, we also have fMRI neuroimaging data of the subjects that corresponds to the collected behaviour data.
 
-
 In each environment, we aim to create models that are able to accurately model the complete behaviour of our human subjects, meaning not only their behaviour at a particular skill level but also the way their behaviour evolves with experience. However, for the sake of troubleshooting, we ought to experiment our way up increasingly fitting behaviour, namely:
 
 
@@ -440,5 +543,6 @@ Full subject behaviour
 
 ## Experimentation path
 
+We now detail a sequential order of experimentation and their purposes.
 
-
+1. Validate 
