@@ -275,7 +275,7 @@ However we decide not to implement a heavier form of elitism so as to not consid
 
 #### Adversarial imitation
 
-We optimize for imitation using an adversarial imitation algorithm
+We optimize for imitation using an adversarial imitation algorithm.
 
 ##### Why adversarial imitation?
 
@@ -438,8 +438,6 @@ There are `m` `output` nodes, corresponding to the `m` real values that the netw
 
 ##### Parameters
 
-
-
 ###### Overview
 
 Each network maintains its own set of these 4 mutable parameters:
@@ -448,10 +446,10 @@ Each network maintains its own set of these 4 mutable parameters:
 - `num_network_passes_per_input`, int, x >= 1
 - `local_connectivity_probability`, float, x >= 0, x <= 1
 
-We decide to make these parameters mutable because we believe we do not have good global heuristics to set them properly ourselves.
+We decide to make these parameters mutable because we do not believe to have good general priors to set them properly ourselves.
 
 
-###### `avg_num_grow_mutations` & `avg_num_prune_mutations`
+###### `self.avg_num_grow_mutations` & `self.avg_num_prune_mutations`
 
 The `avg_num_grow_mutations` and `avg_num_prune_mutations` values control how much growing and pruning randomly occurs.
 
@@ -461,130 +459,99 @@ We believe this to be valuable because different stages of the evolution process
 
 —
 
-We randomly set the initial value of `avg_num_grow_mutations` to a value between 0.5 and 1.0 (uniform sampling), and `avg_num_prune_mutations` to a value between 0.1 and 1.0.
+We randomly set the initial value, independently for both `avg_num_grow_mutations` `avg_num_prune_mutations`, to a random value between 0.1 and 1.0 (uniform sampling).
+
+This wide range reflects the fact that we do not have good priors for setting these values.
+Because we setup the perturbation of these parameters to be multiplicative (see ###### `self.perturb_parameters()`). We set the lower bound to 0.1 so as to not be trapped by being too close to 0, and the upper bound to 1.0 so as to not risk too much representation perturbation in early evolutionary search.
 
 
+###### `self.num_network_passes_per_input`
 
-
-###### `num_network_passes_per_input`
-
-The `num_network_passes_per_input` value controls how many “forward” passes the network operates for every new series of input values. When it is greater than one, the given series of input values is simply fed again.
+The `num_network_passes_per_input` value controls how many node passes the network operates for every new series of input values. When it is greater than one, the given series of input values is simply fed repeatedly. Only the final output values are fed out of the network.
 
 We create this parameter in order to give networks the flexibility to control how much processing time a given series of input values is given before moving on to a new one.
 
 We believe this to be valuable for two main reasons:
 
-1) If the network grows large, given that our networks do not use layers, an increasing number of forward passes will be required in order for a given node to communicate to another given node.
+1) If the network grows large, given that our networks do not use layers, an increasing number of node passes will be required in order for a given node to communicate to another given node.
 
-2) We do not want to get in the way of the possibility that certain network configurations could derive value from having more network structure involved for any series of input values. 
+2) We do not want to get in the way of the possibility that certain network configurations could derive value from having more network structure involved for any series of input values.
 
 —
 
+We randomly set the initial value of this parameter to a random value according to a shifted geometric distribution where p(1) = 50%, p(2) = 25% etc.
 
-The `local_connectivity_probability` value controls the probability of accepting the current set of nodes considered. When `local_connectivity_probability` is high, nearby nodes will more likely be connected to each other.
+We choose this format because the evolutionary search begins with minimal networks and large `num_network_passes_per_input` are likely to be a waste of compute. However we do not have good priors for this design decision and thus wish to leave the option for large values open.
 
-We create this parameter in order to give the evolutionary search the flexibility to have some control over whether to push for local or global connectivity. We choose to make this a global per-network parameter rather than a per-node parameter in order not to explode the search dimensionality.
-
-We believe this parameter to be valuable 
-
-the type of connectivity 
-
-This is a float that is >= 0.
-It is randomly set for each network to a value between 0.5 and 1.0 (uniform sampling).
+###### `self.local_connectivity_probability`
 
 
-, with a default value of, float, x >= 0, default
-- `avg_num_prune_mutations`, float, x >= 0
-- `num_network_passes_per_input`, int, x >= 1
-- `local_connectivity_probability` float, x >= 0, x <= 1
+The `local_connectivity_probability` value controls the probability of accepting the current set of nodes considered (see `###### self.grow_connection()`). When `local_connectivity_probability` is high, nearby nodes are more likely to be made connected to each other.
 
+We create this parameter in order to give the evolutionary search the flexibility to have some control over whether to push for local or global connectivity at different stages of the search. We choose to make this a global per-network parameter rather than a per-node parameter in order not to explode the search dimensionality.
 
+—
 
+We randomly set the initial value of this parameter to a value between 0 and 1 (uniform sampling).
+This reflects, once again, that we do not know what a good initial value is.
 
-##### Mutations
+##### Mutation stage
 
-During the mutation stage, three 
+All networks are modified during the mutation stage.
 
-###### Grow node
+The modifications made during the mutation stage are both random or agentic (see `#### Mutator role`).
 
+There are three sub-stages in the random mutation stage: perturbing parameters, pruning node(s) and growing node(s). Parameter perturbation occurs first so that node growing and pruning reflect that change. Node pruning occurs after node growing so as to not prune untested new representational capacity. 
+
+###### `self.perturb_parameters()`
+
+####### `self.avg_num_grow_mutations` & `self.avg_num_prune_mutations`
+
+rand_val = 1.0 + 0.01 * random gaussian sample (independent for both parameters)
+parameter *= rand_val
+
+—
+
+This random mutation is multiplicative and makes going from 10 to 11 as likely as going from 1.0 to 1.1.
+We choose multiplicativity over additivity in order to account for X.
+
+We handpick the 0.01 sigma value somewhat randomly.
+
+####### `self.num_network_passes_per_input`
+
+rand_val = uniform sampling of 1, 0 or -1
+parameter += rand_val (while making sure parameter stays in its desired range)
+
+—
+
+We believe that larger and deeper networks are likely to benefit from running multiple node passes. We thus purposely make this parameter able to vary quite a bit over time.
+
+We do not want a network to overfit to its current `self.num_network_passes_per_input` value.
+
+####### `local_connectivity_probability`
+
+rand_val = 0.01 * random gaussian sample
+parameter += rand_val (while making sure parameter stays in its desired range)
+
+—
+
+X
+
+###### Grow node(s)
+
+`self.grow_node()` is the only method that creates more representational capacity in a given network.
+
+It does so by sampling three existing nodes and creating a `hidden` node that inputs from the first two sampled nodes and outputs to the third sampled node.
 
 ####### Sampling nearby nodes
 
 ####### Grow connection
 
-###### Prune node
+###### Prune node(s)
 
 ####### Prune connection
 
-###### Perturb parameters
 
-####### `avg_num_grow_mutations`
-
-rand_val: float = 1.0 + 0.01 * torch.randn(1).item()
-self.avg_num_grow_mutations *= rand_val
-
-—
-
-
-
-
-####### `avg_num_prune_mutations`
-
-####### `num_network_passes_per_input`
-
-####### `local_connectivity_probability`
-
-XXX
-
-Because
-We believe many of the 
-
-###### mutate()
-
-
-
-
-##### Nodes
-
-
-
-For the sake of operations described later on, each node has a `mutable uid` and `immutable uid`.
-
-.
-
-One node is thus `emitting` and the other is `receiving`.
-
-
-The `emitting node`
-
-`input` nodes do not have `in_nodes`, whereas `hidden` and `output` nodes can have up to 3 (hard limit).
-All nodes can have an unlimited number of `out_nodes`.
-
-
-
-
-—
-
-A network is first initialized with its `n` `input` nodes and `m` `output` nodes and no connections.
-
-Connections and `hidden` nodes are formed through the use of the `grow_node` mutation.
-
-—
-
-The `grow_node` mutation consists in creating a new `hidden` node and assigning it 2 `in_nodes` & 1 `out_node`.
-
-We randomly sample the first `in_node` from the set of `receiving_nodes` (nodes that input at least one value).
-
-We sample the second `in_node` from the set of `receiving_nodes` minus the first `in_node`.
-
-This time however, instead of randomly sampling any of these nodes, we assign a preference to the nodes that are “near” the first `in_node`.
-
-—
-
-We maintain a `local_connectivity_probability` parameter 
-
-
-During the `grow_node` mutation, we begin by selection 
 
 
 
@@ -596,7 +563,8 @@ We now detail how agents are given the opportunity to alter their own connectivi
 
 
 ###### Indirect recombination
-d
+D
+
 ### Leveraging the gradient-based paradigm
 
 We now detail how we plan to bring evolutionary search and the modern paradigm together.
