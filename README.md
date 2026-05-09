@@ -67,7 +67,7 @@ In the pursuit of designing systems that exhibit sapience, it appears to us that
 
 From our perspective, sapience as it appears in humanity is an advanced product of evolution that sits at the top of an incredibly sophisticated dependency graph. As a result, we believe the practical chances of success in building sapient systems to drop very sharply as we ever so slightly distance ourselves from pure imitation of existing behaviour.
 
-We thus believe that our best bet at embedding sapience into computational systems is through the betterment of human behaviour imitation modeling.
+We thus believe that our best bet at embedding sapience into computational systems is through the betterment of human behaviour imitation modeling, through both 1) higher fidelity human behaviour datasets & 2) methods that can better model these higher fidelity datasets.
 
 ### Random search to enhance human behaviour imitation
 
@@ -154,13 +154,12 @@ We detail, in this sub-section, all of our `### Evolutionary search` methods and
 
 We begin by introducing our methods that pertain to evolutionary search.
 
-In `#### Core design`, we detail design decisions that pertain to the core evolutionary search algorithm itself.
+In `#### Core design`, we detail design decisions that pertain to the core of the evolutionary search.
 
 In the later sub-sections we detail more specific mechanisms with the following purposes:
-- `#### Adversarial imitation`: open-ended human behaviour imitation
-- `#### Generational inheritance`: increased evaluation-efficiency
+- `#### Generational inheritance`: increasing evaluation efficiency
+- `#### Adversarial imitation optimization`: open-ended human behaviour imitation
 - `#### Neural networks`: flexible representation construction
-- `#### Mutator role`: evolving self-adaptability
 
 
 #### Core design
@@ -175,7 +174,7 @@ We opt for genetic algorithms.
 
 Evolution strategies methods build on the idea of population-scale recombination of agents, placing higher recombination weight to better performing agents.
 
-We are of the opinion that recombination of neural networks, in practice, imposes two conditions that we believe too restrictive for our purposes.
+We are of the opinion that recombination of neural networks, in practice, imposes two conditions that we believe are too restrictive for our purposes.
 
 ###### Network design requirements
 
@@ -212,7 +211,7 @@ The generation of agents at iteration `<iter>` is `gen <iter>`.
 
 ##### Islands
 
-We also choose to make the genetic algorithm island-based. We explain our reasoning in `#### Adversarial imitation`.
+We also choose to make the genetic algorithm island-based. We explain our reasoning in `##### Operationalization of generational inheritance`.
 
 There are `num_islands` islands, each composed of the same `island_size` (`pop_size / num_islands`) number of agents.
 
@@ -273,58 +272,16 @@ First of all we choose to implement some form of elitism, over no form of elitis
 
 However we decide not to implement a heavier form of elitism so as to not considerably slow-down the search: the representations that we are looking for are very complex and are likely very deep in the search space.
 
-#### Adversarial imitation
-
-We optimize for imitation using an adversarial imitation algorithm.
-
-##### Why adversarial imitation?
-
-We choose to operate adversarial imitation rather than other forms of supervised/unsupervised imitation.
-
-Our reasoning is multi-fold:
-
-1) Adversarial imitation is the most open-ended imitation technique in that it maintains at any given time multiple optimization paths: up to the theoretical perfect discriminator / generator, representation formation is only  are only constrained tothe path to new representations is open-ended.
-
-This is in contrast with static optimization paths where representation creation is much more constrained to a given path.
-
-2) The operationalization of adversarial imitation in an evolutionary search context is quite a bit different than it is with gradient-based optimization.
-
-Adversarial imitation in gradient-based optimization appears to have two drawbacks that presently make them second-class citizens to diffusion models: 1) training instability and 2) one-shot generation.
-
-Point 1 is only relevant in the context of gradient-based optimization and point 2 is only relevant in the context of having a fixed inference budget, which we do not (see the `Neural Networks` section).
-
-
-
-As mentioned previously, each agent is both a generator and a discriminator.
-
-Every iteration, each agent is evaluated for both its generation and discrimination performance.
-
-Generation is quite straightforward: the agent simply behaves in the virtual environment.
-
-Discrimination is a bit more involved: the agent observes the behaviour of all other agents on its island.
-
-—
-
-
-We now introduce the method.
-
-
-
-
-##### 
-#### 
-
-Every iteration, 
-
 #### Generational inheritance
 
 Generational inheritance is meant to make evolutionary search more efficient with respect to evaluation.
-It does so by having agents run on portions of a task instead of full tasks.
+
+It does so by having agents run on portions of a task instead of full tasks. For our purposes, it means having individual agents operate on sub-sections of human behaviour
 
 
 Agents that are selected transfer to their two offspring not only their genotype, but also their final environment state, final memory state, and cumulative lineage fitness scores.
 
-During its own evaluation stage, the offspring thus loads and resumes from its parent’s memory state and environment state. Its fitness score becomes the sum of its lineage fitness score plus its own. The selection stage thus accounts for that sum rather than the individual’s fitness.
+During its own evaluation stage, the offspring thus loads and resumes from its parent’s memory state and environment state. Its fitness score becomes the sum of its lineage fitness score plus its own individual fitness score. The selection stage then accounts for the sum of the lineage and individual fitness scores.
 
 Agents are evaluated for `num_states` states. If the virtual environment terminates before `num_states` take place, we reset the environment and memory (but not the fitness score) and run for the remaining states.
 
@@ -334,76 +291,59 @@ This mechanism has an important impact on the selection process, as described in
 
 We see value in this property for the same reasons that occur in the natural world.
 
+#### Adversarial imitation optimization
+
+In its most basic form, adversarial imitation optimization is a method where a generator produces some artifact and a discriminator attempts to dissociate generated and real artefacts.
+
+The generator is optimized to produce artefacts that fool the discriminator while the discriminator is optimized to better dissociate.
+
+—
+
+Our central course of action in the pursuit of higher fidelity behaviour imitation is the use of a form of population-based adversarial imitation optimization, wherein every agent in our population both generates behaviour and discriminates the behaviour of all other agents on its island.
+
+##### Why adversarial imitation?
+
+We choose to operate adversarial imitation over other forms of supervised/unsupervised imitation for the following reasons.
+
+###### Open-ended optimization trajectory
+
+Most non-adversarial imitation methods optimize against a relatively fixed objective. Even when expressive models are used, representation formation is ultimately constrained by a static loss function defined over a fixed target distribution.
+
+Adversarial imitation differs in that the optimization target is itself adaptive.
+
+The generator continuously optimizes to produce behaviour that cannot be distinguished from real behaviour, while the discriminator continuously optimizes to better dissociate generated and real behavioural artefacts. As each side improves, the effective optimization landscape changes.
+
+This produces a fundamentally more open-ended optimization process.
+
+Rather than following a single relatively static optimization path, adversarial imitation continuously creates new generative and discriminative pressures, allowing new behavioural and representational strategies to emerge throughout optimization.
+
+In the population-based setting, this effect compounds further.
+
+Every agent both generates behaviour and discriminates the behaviour of all other agents on its island, creating a heterogeneous and continually shifting ecology of selective pressures. Multiple behavioural equilibria, discriminative strategies, and representational niches may therefore coexist and compete simultaneously, preventing optimization from collapsing toward a singular behavioural solution.
+
+###### Sidestepping the constraints of gradient-based adversarial optimization
+
+Adversarial optimization in gradient-based optimization is commonly associated with two major drawbacks: a) training instability & b) fixed inference budget.
+
+Both drawbacks do not pertain to our conditions: 1) training instability arises from generator–discriminator gradient dynamics which are not pertinent to evolutionary search & 2) our methods have an inherently dynamic inference budget (see `###### num_node_passes_per_input`).
+
+##### Core design
 
 
-##### Application to generational inheritance
 
-Generational inheritance is straight-forward to implement for the generator role.
+##### Operationalization of generational inheritance
+
+Generational inheritance is straight-forward to implement for the generator role: a given generator begins an episode/task, runs for `num_states`, and if selected, has its children resume from where it left off.
+
+Without the use of islands, generational inheritance is however not straightforward to use for the discriminator role. The reason is that we are faced with a trade-off where if we want discriminator agents to be able to consistently transfer to their offspring, we need to 
+- 
+-
+For the discriminator role, 
+
+
+
 
 However it is not so straightforward for the discriminator role, given that an agent’s chile will most likely not encounter the same generator 
-
-#### Neural network
-
-$$$$$ Evolution
-
-Each agent maintains one neural network.
-
-The network is a directed graph. Structurally, the network is made up of nodes and connections.
-
-£££££ Computation 
-
-While network evolution is performed per-network, computation is batched so it can run in parallel on the GPU.
-
-The ‘3 x num_nodes’ 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #### Neural networks
@@ -443,7 +383,7 @@ There are `m` `output` nodes, corresponding to the `m` real values that the netw
 Each network maintains its own set of these 4 mutable parameters:
 - `avg_num_grow_mutations`, float, x >= 0
 - `avg_num_prune_mutations`, float, x >= 0
-- `num_network_passes_per_input`, int, x >= 1
+- `num_node_passes_per_input`, int, x >= 1
 - `local_connectivity_probability`, float, x >= 0, x <= 1
 
 We decide to make these parameters mutable because we do not believe to have good general priors to set them properly ourselves.
@@ -465,9 +405,9 @@ This wide range reflects the fact that we do not have good priors for setting th
 Because we setup the perturbation of these parameters to be multiplicative (see ###### `self.perturb_parameters()`). We set the lower bound to 0.1 so as to not be trapped by being too close to 0, and the upper bound to 1.0 so as to not risk too much representation perturbation in early evolutionary search.
 
 
-###### `self.num_network_passes_per_input`
+###### `self.num_node_passes_per_input`
 
-The `num_network_passes_per_input` value controls how many node passes the network operates for every new series of input values. When it is greater than one, the given series of input values is simply fed repeatedly. Only the final output values are fed out of the network.
+The `num_node_passes_per_input` value controls how many node passes the network operates for every new series of input values. When it is greater than one, the given series of input values is simply fed repeatedly. Only the final output values are fed out of the network.
 
 We create this parameter in order to give networks the flexibility to control how much processing time a given series of input values is given before moving on to a new one.
 
@@ -481,7 +421,7 @@ We believe this to be valuable for two main reasons:
 
 We randomly set the initial value of this parameter to a random value according to a shifted geometric distribution where p(1) = 50%, p(2) = 25% etc.
 
-We choose this format because the evolutionary search begins with minimal networks and large `num_network_passes_per_input` are likely to be a waste of compute. However we do not have good priors for this design decision and thus wish to leave the option for large values open.
+We choose this format because the evolutionary search begins with minimal networks and large `num_node_passes_per_input` are likely to be a waste of compute. However we do not have good priors for this design decision and thus wish to leave the option for large values open.
 
 ###### `self.local_connectivity_probability`
 
@@ -517,7 +457,7 @@ We choose multiplicativity over additivity in order to account for X.
 
 We handpick the 0.01 sigma value somewhat randomly.
 
-####### `self.num_network_passes_per_input`
+####### `self.num_node_passes_per_input`
 
 rand_val = uniform sampling of 1, 0 or -1
 parameter += rand_val (while making sure parameter stays in its desired range)
@@ -526,7 +466,7 @@ parameter += rand_val (while making sure parameter stays in its desired range)
 
 We believe that larger and deeper networks are likely to benefit from running multiple node passes. We thus purposely make this parameter able to vary quite a bit over time.
 
-We do not want a network to overfit to its current `self.num_network_passes_per_input` value.
+We do not want a network to overfit to its current `self.num_node_passes_per_input` value.
 
 ####### `local_connectivity_probability`
 
@@ -552,18 +492,13 @@ It does so by sampling three existing nodes and creating a `hidden` node that in
 ####### Prune connection
 
 
-
-
-
-#### Mutator role
+##### Self mutability
 
 We now detail how agents are given the opportunity to alter their own connectivity.
 
 
+##### Indirect recombination
 
-
-###### Indirect recombination
-D
 
 ### Leveraging the gradient-based paradigm
 
